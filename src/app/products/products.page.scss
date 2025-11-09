@@ -1,0 +1,13 @@
+:root {
+  --color-primary: #0EA5A4;
+  --muted: #6B7280;
+}
+
+.products-page {
+  --ion-background-color: #FBFDFF;
+  ion-toolbar + ion-toolbar { padding-top: 6px; padding-bottom: 6px; }
+
+  .product-card { margin: 12px 14px; border-radius: 12px; box-shadow: 0 8px 20px rgba(2,6,23,0.04); }
+  .product-card.low { border-left: 4px solid #ef4444; }
+  .muted { color: var(--muted); font-size: 13px; }
+}

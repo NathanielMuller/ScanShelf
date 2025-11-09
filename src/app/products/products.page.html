@@ -1,0 +1,52 @@
+<ion-header translucent>
+  <ion-toolbar>
+    <ion-title>Productos</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" aria-label="Agregar producto">
+        <ion-icon slot="icon-only" name="add-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-searchbar placeholder="Buscar por nombre o SKU"></ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="products-page" fullscreen>
+  <ion-refresher slot="fixed"><ion-refresher-content></ion-refresher-content></ion-refresher>
+
+  <!-- Dos product cards estáticos como ejemplo visual -->
+  <ion-list>
+    <ion-card class="product-card">
+      <ion-item lines="none">
+        <ion-avatar slot="start">
+          <img src="assets/placeholder.png" />
+        </ion-avatar>
+        <ion-label>
+          <h2>Packet de tornillos</h2>
+          <p class="muted">SKU: TOR-001</p>
+        </ion-label>
+        <ion-badge slot="end" color="success">12</ion-badge>
+      </ion-item>
+    </ion-card>
+
+    <ion-card class="product-card low">
+      <ion-item lines="none">
+        <ion-avatar slot="start">
+          <img src="assets/placeholder.png" />
+        </ion-avatar>
+        <ion-label>
+          <h2>Pila AA</h2>
+          <p class="muted">SKU: BAT-AA</p>
+        </ion-label>
+        <ion-badge slot="end" color="danger">2</ion-badge>
+      </ion-item>
+    </ion-card>
+  </ion-list>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary" aria-label="nuevo producto">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

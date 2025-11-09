@@ -1,0 +1,21 @@
+:root {
+  --color-primary: #0EA5A4;
+  --color-bg: #F7FAFC;
+  --muted: #6B7280;
+}
+
+.login-page {
+  --ion-background-color: var(--color-bg);
+  .hero {
+    text-align: center;
+    margin: 36px 16px 8px;
+    h1 { font-size: 28px; margin:0; color:#0f172a; font-weight:700; }
+    .subtitle { margin-top:6px; color: var(--muted); }
+  }
+
+  .login-card { margin: 10px 16px; border-radius: 12px; box-shadow: 0 6px 18px rgba(15,23,42,0.06); }
+  .mt { margin-top: 14px; }
+  .primary { --background: var(--color-primary); --color: #fff; }
+  .secondary { color: var(--muted); }
+  .footer-note { text-align:center; margin-top: 14px; color:var(--muted); }
+}
