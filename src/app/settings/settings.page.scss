@@ -1,0 +1,322 @@
+/* ============================================
+   Settings Page Styles
+   ============================================ */
+
+ion-content {
+  --background: var(--ion-color-light);
+  --padding-start: 16px;
+  --padding-end: 16px;
+}
+
+/* ============================================
+   Profile Section
+   ============================================ */
+
+.profile-section {
+  margin-top: 20px;
+  margin-bottom: 24px;
+}
+
+.profile-card {
+  --background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+  margin-bottom: 0;
+  box-shadow: 0 8px 24px rgba(14, 165, 164, 0.15);
+  border-radius: 16px;
+  overflow: hidden;
+  
+  ion-card-content {
+    padding: 24px;
+  }
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile-avatar {
+  flex-shrink: 0;
+  
+  ion-icon {
+    font-size: 64px;
+    color: white;
+    
+    &.guest-avatar {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+}
+
+.profile-info {
+  flex: 1;
+  color: white;
+  
+  h2 {
+    margin: 0 0 8px 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    font-family: var(--ion-font-family, 'Inter', sans-serif);
+  }
+  
+  .role-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin: 0 0 8px 0;
+    backdrop-filter: blur(10px);
+    
+    &.guest-role {
+      background: rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+  
+  .email {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+}
+
+.profile-header ion-button {
+  --color: white;
+  --color-activated: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  
+  ion-icon {
+    font-size: 20px;
+  }
+  
+  &[disabled] {
+    --color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+/* ============================================
+   Settings Sections
+   ============================================ */
+
+.settings-section {
+  margin-bottom: 32px;
+}
+
+.section-title {
+  margin: 0 0 16px 4px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+  font-family: var(--ion-font-family, 'Inter', sans-serif);
+}
+
+.setting-card {
+  --background: white;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  
+  ion-item {
+    --padding-start: 20px;
+    --padding-end: 20px;
+    --inner-padding-end: 0;
+    --background: transparent;
+    --min-height: 64px;
+    
+    ion-icon[slot="start"] {
+      margin-inline-end: 16px;
+      font-size: 24px;
+      color: var(--ion-color-primary);
+      
+      &[color="danger"] {
+        color: var(--ion-color-danger);
+      }
+    }
+    
+    ion-icon[slot="end"] {
+      color: var(--ion-color-medium);
+      font-size: 20px;
+      
+      &[color="danger"] {
+        color: var(--ion-color-danger);
+      }
+    }
+    
+    ion-label {
+      h3 {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 4px;
+        color: var(--ion-color-dark);
+        font-family: var(--ion-font-family, 'Inter', sans-serif);
+      }
+      
+      p {
+        font-size: 0.85rem;
+        color: var(--ion-color-medium);
+        margin: 0;
+      }
+      
+      &[color="danger"] h3,
+      &[color="danger"] p {
+        color: var(--ion-color-danger);
+      }
+    }
+    
+    ion-toggle {
+      --handle-background: white;
+      --handle-background-checked: white;
+      --background: var(--ion-color-light-shade);
+      --background-checked: var(--ion-color-primary);
+    }
+  }
+  
+  // Hover effect for clickable items
+  ion-item[button]:hover {
+    --background: rgba(14, 165, 164, 0.02);
+  }
+  
+  // Active state
+  ion-item[button]:active {
+    --background: rgba(14, 165, 164, 0.05);
+  }
+}
+
+/* ============================================
+   Logout Section
+   ============================================ */
+
+.logout-section {
+  margin-bottom: 40px;
+  
+  .setting-card {
+    border: 1px solid var(--ion-color-danger-tint);
+    
+    ion-item[button]:hover {
+      --background: rgba(var(--ion-color-danger-rgb), 0.02);
+    }
+    
+    ion-item[button]:active {
+      --background: rgba(var(--ion-color-danger-rgb), 0.05);
+    }
+  }
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 576px) {
+  ion-content {
+    --padding-start: 12px;
+    --padding-end: 12px;
+  }
+  
+  .profile-card ion-card-content {
+    padding: 20px;
+  }
+  
+  .profile-header {
+    gap: 12px;
+  }
+  
+  .profile-avatar ion-icon {
+    font-size: 56px;
+  }
+  
+  .profile-info h2 {
+    font-size: 1.2rem;
+  }
+  
+  .setting-card ion-item {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --min-height: 60px;
+  }
+}
+
+/* ============================================
+   Dark Mode Support (Future)
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  .settings-section:not(.profile-section) .section-title {
+    color: var(--ion-color-light);
+  }
+  
+  .setting-card {
+    --background: var(--ion-color-step-50);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    
+    ion-item ion-label {
+      h3 {
+        color: var(--ion-color-light);
+      }
+    }
+  }
+}
+
+/* ============================================
+   Animation Classes
+   ============================================ */
+
+.setting-card {
+  animation: slideInUp 0.5s ease-out;
+}
+
+.profile-card {
+  animation: slideInDown 0.6s ease-out;
+}
+
+/* Staggered animation for settings sections */
+.settings-section:nth-child(2) .setting-card { animation-delay: 0.1s; }
+.settings-section:nth-child(3) .setting-card { animation-delay: 0.2s; }
+.settings-section:nth-child(4) .setting-card { animation-delay: 0.3s; }
+.logout-section .setting-card { animation-delay: 0.4s; }
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .setting-card,
+  .profile-card {
+    animation: none;
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .setting-card {
+    border: 1px solid var(--ion-color-medium);
+  }
+  
+  .profile-card {
+    border: 2px solid var(--ion-color-primary-contrast);
+  }
+}

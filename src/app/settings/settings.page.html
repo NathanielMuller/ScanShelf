@@ -1,13 +1,196 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>settings</ion-title>
+    <ion-title>Configuración</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">settings</ion-title>
+      <ion-title size="large">Configuración</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <!-- User Profile Section -->
+  <div class="profile-section" @fadeIn>
+    <ion-card class="profile-card">
+      <ion-card-content>
+        <div class="profile-header">
+          <div class="profile-avatar">
+            <ion-icon name="person-circle" [class.guest-avatar]="isGuest"></ion-icon>
+          </div>
+          <div class="profile-info">
+            <h2>{{ userProfile.name }}</h2>
+            <p class="role-badge" [class.guest-role]="isGuest">{{ getRoleDisplayName() }}</p>
+            <p class="email">{{ userProfile.email }}</p>
+          </div>
+          <ion-button 
+            fill="clear" 
+            size="small" 
+            (click)="editProfile()"
+            [disabled]="isGuest">
+            <ion-icon name="create-outline"></ion-icon>
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- App Settings Section -->
+  <div class="settings-section" @fadeIn>
+    <h3 class="section-title">Configuración de la App</h3>
+    
+    <!-- Notifications -->
+    <ion-card class="setting-card">
+      <ion-item>
+        <ion-icon name="notifications-outline" slot="start"></ion-icon>
+        <ion-label>
+          <h3>Notificaciones</h3>
+          <p>Recibir notificaciones push</p>
+        </ion-label>
+        <ion-toggle 
+          slot="end" 
+          [checked]="settings.notifications"
+          (ionChange)="onNotificationsChange($event)">
+        </ion-toggle>
+      </ion-item>
+    </ion-card>
+
+    <!-- Dark Mode -->
+    <ion-card class="setting-card">
+      <ion-item>
+        <ion-icon name="moon-outline" slot="start"></ion-icon>
+        <ion-label>
+          <h3>Modo Oscuro</h3>
+          <p>Cambiar al tema oscuro</p>
+        </ion-label>
+        <ion-toggle 
+          slot="end" 
+          [checked]="settings.darkMode"
+          (ionChange)="onDarkModeChange($event)">
+        </ion-toggle>
+      </ion-item>
+    </ion-card>
+
+    <!-- Language -->
+    <ion-card class="setting-card">
+      <ion-item button (click)="languageSelect.open()">
+        <ion-icon name="language-outline" slot="start"></ion-icon>
+        <ion-label>
+          <h3>Idioma</h3>
+          <p>{{ getLanguageDisplayName() }}</p>
+        </ion-label>
+        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+      </ion-item>
+    </ion-card>
+
+    <!-- Auto Sync -->
+    <ion-card class="setting-card">
+      <ion-item>
+        <ion-icon name="sync-outline" slot="start"></ion-icon>
+        <ion-label>
+          <h3>Sincronización Automática</h3>
+          <p>Sincronizar datos automáticamente</p>
+        </ion-label>
+        <ion-toggle 
+          slot="end" 
+          [checked]="settings.autoSync"
+          (ionChange)="onAutoSyncChange($event)">
+        </ion-toggle>
+      </ion-item>
+    </ion-card>
+
+    <!-- Biometrics -->
+    <ion-card class="setting-card">
+      <ion-item>
+        <ion-icon name="finger-print-outline" slot="start"></ion-icon>
+        <ion-label>
+          <h3>Autenticación Biométrica</h3>
+          <p>Usar huella dacial o Face ID</p>
+        </ion-label>
+        <ion-toggle 
+          slot="end" 
+          [checked]="settings.biometrics"
+          (ionChange)="onBiometricsChange($event)"
+          [disabled]="isGuest">
+        </ion-toggle>
+      </ion-item>
+    </ion-card>
+  </div>
+
+  <!-- Data Management Section -->
+  <div class="settings-section" @fadeIn>
+    <h3 class="section-title">Gestión de Datos</h3>
+    
+    <!-- Clear Data -->
+    <ion-card class="setting-card">
+      <ion-item button (click)="clearAppData()">
+        <ion-icon name="trash-outline" slot="start" color="danger"></ion-icon>
+        <ion-label>
+          <h3>Borrar Datos de la App</h3>
+          <p>Eliminar configuraciones y datos locales</p>
+        </ion-label>
+        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+      </ion-item>
+    </ion-card>
+  </div>
+
+  <!-- Support Section -->
+  <div class="settings-section" @fadeIn>
+    <h3 class="section-title">Soporte y Información</h3>
+    
+    <!-- Contact Support -->
+    <ion-card class="setting-card">
+      <ion-item button (click)="contactSupport()">
+        <ion-icon name="help-circle-outline" slot="start"></ion-icon>
+        <ion-label>
+          <h3>Soporte Técnico</h3>
+          <p>Contactar al equipo de soporte</p>
+        </ion-label>
+        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+      </ion-item>
+    </ion-card>
+
+    <!-- About -->
+    <ion-card class="setting-card">
+      <ion-item button (click)="showAbout()">
+        <ion-icon name="information-circle-outline" slot="start"></ion-icon>
+        <ion-label>
+          <h3>Acerca de ScanShelf</h3>
+          <p>Versión {{ appInfo.version }}</p>
+        </ion-label>
+        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+      </ion-item>
+    </ion-card>
+  </div>
+
+  <!-- Logout Section -->
+  <div class="logout-section" @fadeIn>
+    <ion-card class="setting-card">
+      <ion-item button (click)="logout()">
+        <ion-icon name="log-out-outline" slot="start" color="danger"></ion-icon>
+        <ion-label color="danger">
+          <h3>Cerrar Sesión</h3>
+          <p>Salir de la aplicación</p>
+        </ion-label>
+        <ion-icon name="chevron-forward-outline" slot="end" color="danger"></ion-icon>
+      </ion-item>
+    </ion-card>
+  </div>
+
+  <!-- Language Select Modal -->
+  <ion-select 
+    #languageSelect
+    [value]="settings.language"
+    (ionChange)="onLanguageChange($event)"
+    interface="action-sheet"
+    placeholder="Seleccionar idioma"
+    style="display: none;">
+    <ion-select-option 
+      *ngFor="let lang of languages" 
+      [value]="lang.code">
+      {{ lang.name }}
+    </ion-select-option>
+  </ion-select>
+
 </ion-content>

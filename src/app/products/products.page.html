@@ -1,51 +1,162 @@
-<ion-header translucent>
-  <ion-toolbar>
-    <ion-title>Productos</ion-title>
+<ion-header class="products-header" @headerAnimation>
+  <ion-toolbar class="main-toolbar">
+    <ion-title class="page-title">
+      <ion-icon name="layers-outline" class="title-icon"></ion-icon>
+      Productos
+    </ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" aria-label="Agregar producto">
+      <ion-button 
+        fill="clear" 
+        (click)="addProduct()"
+        aria-label="Agregar nuevo producto"
+        class="add-btn"
+      >
         <ion-icon slot="icon-only" name="add-circle-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <ion-toolbar>
-    <ion-searchbar placeholder="Buscar por nombre o SKU"></ion-searchbar>
+  
+  <!-- Search and Filter Toolbar -->
+  <ion-toolbar class="filter-toolbar">
+    <div class="search-container">
+      <ion-searchbar 
+        placeholder="Buscar por nombre o SKU"
+        (ionInput)="onSearchChange($event)"
+        [value]="searchTerm"
+        class="custom-searchbar"
+      ></ion-searchbar>
+    </div>
+  </ion-toolbar>
+  
+  <!-- Category Filter -->
+  <ion-toolbar class="category-toolbar">
+    <ion-segment 
+      [value]="selectedCategory" 
+      (ionChange)="onCategoryChange($event)"
+      class="category-segment"
+    >
+      <ion-segment-button 
+        *ngFor="let category of categories" 
+        [value]="category"
+        class="category-btn"
+      >
+        <ion-label>{{ getCategoryName(category) }}</ion-label>
+      </ion-segment-button>
+    </ion-segment>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="products-page" fullscreen>
-  <ion-refresher slot="fixed"><ion-refresher-content></ion-refresher-content></ion-refresher>
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content
+      refreshingText="Actualizando productos..."
+      pullingText="Desliza para actualizar">
+    </ion-refresher-content>
+  </ion-refresher>
 
-  <!-- Dos product cards estáticos como ejemplo visual -->
-  <ion-list>
-    <ion-card class="product-card">
-      <ion-item lines="none">
-        <ion-avatar slot="start">
-          <img src="assets/placeholder.png" />
-        </ion-avatar>
-        <ion-label>
-          <h2>Packet de tornillos</h2>
-          <p class="muted">SKU: TOR-001</p>
-        </ion-label>
-        <ion-badge slot="end" color="success">12</ion-badge>
-      </ion-item>
-    </ion-card>
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent" class="main-spinner"></ion-spinner>
+    <p class="loading-text">Cargando productos...</p>
+  </div>
 
-    <ion-card class="product-card low">
-      <ion-item lines="none">
-        <ion-avatar slot="start">
-          <img src="assets/placeholder.png" />
-        </ion-avatar>
-        <ion-label>
-          <h2>Pila AA</h2>
-          <p class="muted">SKU: BAT-AA</p>
-        </ion-label>
-        <ion-badge slot="end" color="danger">2</ion-badge>
-      </ion-item>
-    </ion-card>
-  </ion-list>
+  <!-- Products Grid -->
+  <div *ngIf="!isLoading" class="products-container" [@cardStagger]="animationState">
+    <!-- No products message -->
+    <div *ngIf="filteredProducts.length === 0" class="empty-state">
+      <ion-icon name="cube-outline" class="empty-icon"></ion-icon>
+      <h3 class="empty-title">No hay productos</h3>
+      <p class="empty-subtitle">
+        {{ searchTerm || selectedCategory !== 'all' ? 
+           'No se encontraron productos con los filtros aplicados' : 
+           'Comienza agregando tu primer producto' }}
+      </p>
+      <ion-button 
+        fill="outline" 
+        (click)="addProduct()"
+        *ngIf="!searchTerm && selectedCategory === 'all'"
+      >
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        Agregar Producto
+      </ion-button>
+    </div>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button color="primary" aria-label="nuevo producto">
+    <!-- Product Cards -->
+    <div class="products-grid" *ngIf="filteredProducts.length > 0">
+      <ion-card 
+        *ngFor="let product of filteredProducts; let i = index" 
+        class="product-card card-modern"
+        [class.animate-stagger-1]="i === 0"
+        [class.animate-stagger-2]="i === 1"
+        [class.animate-stagger-3]="i === 2"
+        [class.animate-stagger-4]="i === 3"
+        [class.animate-stagger-5]="i === 4"
+        [class.animate-stagger-6]="i === 5"
+        (click)="viewProduct(product)"
+        button
+      >
+        <ion-card-content class="product-content">
+          <!-- Product Image/Icon -->
+          <div class="product-image">
+            <ion-icon 
+              [name]="product.category === 'electronics' ? 'phone-portrait-outline' : 
+                     product.category === 'clothing' ? 'shirt-outline' :
+                     product.category === 'food' ? 'cafe-outline' :
+                     product.category === 'books' ? 'book-outline' : 'cube-outline'"
+              class="product-icon"
+            ></ion-icon>
+          </div>
+
+          <!-- Product Info -->
+          <div class="product-info">
+            <h3 class="product-name">{{ product.name }}</h3>
+            <p class="product-sku">{{ product.sku }}</p>
+            <p class="product-price">${{ product.price | number:'1.2-2' }}</p>
+          </div>
+
+          <!-- Stock Info -->
+          <div class="stock-info">
+            <div class="stock-badge">
+              <ion-badge 
+                [color]="getStatusColor(product.status)"
+                class="status-badge"
+              >
+                {{ getStatusText(product.status) }}
+              </ion-badge>
+            </div>
+            <div class="stock-numbers">
+              <span class="stock-current">{{ product.stock }}</span>
+              <span class="stock-separator">/</span>
+              <span class="stock-min">{{ product.minStock }} mín</span>
+            </div>
+          </div>
+
+          <!-- Progress Bar for Stock Level -->
+          <div class="stock-progress">
+            <div 
+              class="progress-bar"
+              [style.width.%]="(product.stock / product.minStock) * 100"
+              [class.low]="product.status === 'low_stock'"
+              [class.empty]="product.status === 'out_of_stock'"
+            ></div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+
+  <!-- Floating Action Button -->
+  <ion-fab 
+    vertical="bottom" 
+    horizontal="end" 
+    slot="fixed"
+    class="fab-container"
+  >
+    <ion-fab-button 
+      class="main-fab animate-pulse"
+      (click)="addProduct()"
+      aria-label="Agregar nuevo producto"
+    >
       <ion-icon name="add-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>

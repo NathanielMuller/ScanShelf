@@ -1,13 +1,40 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>reports</ion-title>
+    <ion-title>Reportes</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">reports</ion-title>
+      <ion-title size="large">Reportes</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <div class="development-container" @fadeIn>
+    
+    <!-- Main development message -->
+    <div class="development-hero">
+      <div class="charts-icon">
+        <ion-icon name="analytics-outline"></ion-icon>
+      </div>
+      <h1>Página en Desarrollo</h1>
+      <p class="hero-subtitle">
+        Esta funcionalidad se encuentra en desarrollo. Próximamente se agregarán nuevas características.
+      </p>
+    </div>
+
+    <!-- Status message -->
+    <div class="status-message">
+      <ion-chip color="tertiary" outline="true">
+        <ion-icon name="code-working-outline"></ion-icon>
+        <ion-label>En desarrollo</ion-label>
+      </ion-chip>
+      <p>
+        Próximamente se agregarán funcionalidades a esta página.
+      </p>
+    </div>
+
+  </div>
+
 </ion-content>

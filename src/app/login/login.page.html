@@ -1,34 +1,117 @@
-<ion-header translucent>
-  <ion-toolbar>
-    <ion-title>ScanShelf</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content class="login-page" fullscreen>
-  <div class="hero">
-    <h1>Bienvenido a ScanShelf</h1>
-    <p class="subtitle">Controla tu inventario desde el móvil</p>
+  <!-- Hero Section con animación -->
+  <div class="hero" @heroAnimation>
+    <div class="hero-content">
+      <ion-icon name="scan-outline" class="hero-icon"></ion-icon>
+      <h1 class="hero-title">Bienvenido a ScanShelf</h1>
+      <p class="hero-subtitle">Gestiona tu inventario de forma inteligente</p>
+    </div>
   </div>
 
-  <ion-card class="login-card">
-    <ion-card-content>
-      <!-- Inputs visuales sin lógica -->
-      <ion-item lines="full">
-        <ion-label position="floating">Usuario</ion-label>
-        <ion-input type="text" placeholder="ej: juan123"></ion-input>
-      </ion-item>
+  <!-- Login Card -->
+  <div class="login-container">
+    <ion-card 
+      class="login-card card-modern" 
+      #loginCard 
+      [@shakeAnimation]="shakeState"
+    >
+      <ion-card-header>
+        <ion-card-title class="card-title">Iniciar Sesión</ion-card-title>
+        <ion-card-subtitle class="card-subtitle">Ingresa tus credenciales para continuar</ion-card-subtitle>
+      </ion-card-header>
 
-      <ion-item lines="full">
-        <ion-label position="floating">Contraseña (4 dígitos)</ion-label>
-        <ion-input type="password" inputmode="numeric" placeholder="****"></ion-input>
-      </ion-item>
+      <ion-card-content>
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <!-- Campo Usuario -->
+          <div class="input-group">
+            <ion-item 
+              lines="none" 
+              class="input-item"
+              [class.error]="hasError('username', 'required') || hasError('username', 'pattern') || hasError('username', 'minlength') || hasError('username', 'maxlength')"
+            >
+              <ion-label position="stacked">Usuario</ion-label>
+              <ion-input 
+                type="text" 
+                formControlName="username"
+                placeholder="Ej: juan123"
+                maxlength="8"
+                autocomplete="username"
+                [clearInput]="true"
+                aria-label="Nombre de usuario"
+              ></ion-input>
+            </ion-item>
+            <div class="error-message" *ngIf="(loginForm.get('username')?.dirty || loginForm.get('username')?.touched) && loginForm.get('username')?.invalid">
+              {{ getErrorMessage('username') }}
+            </div>
+          </div>
 
-      <ion-button expand="block" class="primary mt">Ingresar</ion-button>
-      <ion-button fill="clear" expand="block" class="secondary">Crear cuenta</ion-button>
-    </ion-card-content>
-  </ion-card>
+          <!-- Campo Contraseña -->
+          <div class="input-group">
+            <ion-item 
+              lines="none" 
+              class="input-item"
+              [class.error]="hasError('password', 'required') || hasError('password', 'pattern')"
+            >
+              <ion-label position="stacked">Contraseña</ion-label>
+              <ion-input 
+                type="password" 
+                formControlName="password"
+                placeholder="4 dígitos"
+                maxlength="4"
+                inputmode="numeric"
+                autocomplete="current-password"
+                aria-label="Contraseña de 4 dígitos"
+              ></ion-input>
+            </ion-item>
+            <div class="error-message" *ngIf="(loginForm.get('password')?.dirty || loginForm.get('password')?.touched) && loginForm.get('password')?.invalid">
+              {{ getErrorMessage('password') }}
+            </div>
+          </div>
 
-  <div class="footer-note">
-    <small>ScanShelf · Demo UI</small>
+          <!-- Botones de acción -->
+          <div class="button-group">
+            <ion-button 
+              type="submit"
+              expand="block" 
+              class="btn-primary login-btn"
+              [disabled]="isLoading"
+              aria-label="Iniciar sesión con credenciales"
+            >
+              <ion-icon name="log-in-outline" slot="start" *ngIf="!isLoading"></ion-icon>
+              <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+              {{ isLoading ? 'Iniciando...' : 'Ingresar' }}
+            </ion-button>
+
+            <ion-button 
+              type="button"
+              fill="outline" 
+              expand="block" 
+              class="btn-secondary guest-btn"
+              [disabled]="isLoading"
+              (click)="onGuestLogin()"
+              aria-label="Entrar como invitado"
+            >
+              <ion-icon name="person-outline" slot="start"></ion-icon>
+              Entrar como Invitado
+            </ion-button>
+          </div>
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Información adicional -->
+    <div class="info-section">
+      <p class="demo-info">
+        <ion-icon name="information-circle-outline"></ion-icon>
+        <strong>Demo:</strong> Usuario: 3-8 caracteres alfanuméricos | Contraseña: 4 dígitos
+      </p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p class="footer-text">
+      ScanShelf v1.0 · Gestión de Inventario
+    </p>
   </div>
 </ion-content>

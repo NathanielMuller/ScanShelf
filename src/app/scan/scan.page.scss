@@ -1,0 +1,285 @@
+/* ============================================
+   Scan Page Development Styles
+   ============================================ */
+
+ion-content {
+  --background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.development-container {
+  padding: 32px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-height: calc(100vh - 100px);
+  justify-content: center;
+}
+
+/* ============================================
+   Hero Section
+   ============================================ */
+
+.development-hero {
+  margin-bottom: 48px;
+  
+  .scan-icon {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 32px;
+    box-shadow: 0 8px 32px rgba(14, 165, 164, 0.25);
+    
+    ion-icon {
+      font-size: 56px;
+      color: white;
+    }
+  }
+  
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin-bottom: 16px;
+    font-family: var(--ion-font-family, 'Inter', sans-serif);
+  }
+  
+  .hero-subtitle {
+    font-size: 1.1rem;
+    color: var(--ion-color-medium);
+    line-height: 1.6;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+/* ============================================
+   Features Section
+   ============================================ */
+
+.features-section {
+  width: 100%;
+  margin-bottom: 48px;
+  
+  h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    margin-bottom: 32px;
+    font-family: var(--ion-font-family, 'Inter', sans-serif);
+  }
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.feature-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  text-align: left;
+  animation: slideInUp 0.6s ease-out both;
+  border: 1px solid rgba(14, 165, 164, 0.1);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+    border-color: rgba(14, 165, 164, 0.2);
+  }
+}
+
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--ion-color-primary-tint), var(--ion-color-primary));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  
+  ion-icon {
+    font-size: 24px;
+    color: white;
+  }
+}
+
+.feature-content {
+  flex: 1;
+  
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    margin-bottom: 8px;
+    font-family: var(--ion-font-family, 'Inter', sans-serif);
+  }
+  
+  p {
+    font-size: 0.9rem;
+    color: var(--ion-color-medium);
+    line-height: 1.5;
+    margin: 0;
+  }
+}
+
+/* ============================================
+   Status Message
+   ============================================ */
+
+.status-message {
+  text-align: center;
+  
+  ion-chip {
+    margin-bottom: 20px;
+    --background: rgba(255, 193, 7, 0.1);
+    --color: #d4861e;
+    font-weight: 500;
+    
+    ion-icon {
+      margin-right: 8px;
+    }
+  }
+  
+  p {
+    font-size: 0.95rem;
+    color: var(--ion-color-medium);
+    line-height: 1.6;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pulse animation for scan icon */
+.scan-icon {
+  animation: scanPulse 3s ease-in-out infinite;
+}
+
+@keyframes scanPulse {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 0 8px 32px rgba(14, 165, 164, 0.25);
+  }
+  50% { 
+    transform: scale(1.05);
+    box-shadow: 0 12px 40px rgba(14, 165, 164, 0.35);
+  }
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (min-width: 768px) {
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .development-container {
+    padding: 48px 40px;
+  }
+}
+
+@media (max-width: 576px) {
+  .development-container {
+    padding: 24px 16px;
+  }
+  
+  .development-hero {
+    margin-bottom: 40px;
+    
+    .scan-icon {
+      width: 100px;
+      height: 100px;
+      
+      ion-icon {
+        font-size: 48px;
+      }
+    }
+    
+    h1 {
+      font-size: 1.7rem;
+    }
+    
+    .hero-subtitle {
+      font-size: 1rem;
+    }
+  }
+  
+  .feature-card {
+    padding: 20px;
+    gap: 16px;
+  }
+  
+  .feature-icon {
+    width: 40px;
+    height: 40px;
+    
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+  
+  .features-section h2 {
+    font-size: 1.2rem;
+  }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .feature-card {
+    animation: none;
+  }
+  
+  .scan-icon {
+    animation: none;
+  }
+  
+  .feature-card:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .feature-card {
+    border: 2px solid var(--ion-color-medium);
+  }
+  
+  .scan-icon {
+    border: 2px solid var(--ion-color-primary-contrast);
+  }
+}

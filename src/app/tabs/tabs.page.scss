@@ -1,5 +1,181 @@
-ion-tab-bar {
-  --background: #ffffff;
-  --border-top: 1px solid rgba(15,23,42,0.04);
-  ion-tab-button { --color-selected: #0EA5A4; }
+/* Header Styles */
+.tabs-header {
+  --ion-toolbar-background: var(--color-surface);
+  --ion-toolbar-border-color: transparent;
+  box-shadow: 0 2px 8px rgba(2, 6, 23, 0.04);
+  
+  .user-toolbar {
+    --padding-start: var(--spacing-lg);
+    --padding-end: var(--spacing-lg);
+    --min-height: 60px;
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      
+      .user-icon {
+        font-size: 28px;
+        color: var(--color-primary);
+        padding: var(--spacing-xs);
+        border-radius: 50%;
+        background: rgba(14, 165, 164, 0.1);
+      }
+      
+      .user-details {
+        display: flex;
+        flex-direction: column;
+        
+        .user-greeting {
+          font-size: 16px;
+          font-weight: var(--font-weight-semibold);
+          color: var(--color-text-dark);
+          line-height: 1.2;
+        }
+        
+        .user-status {
+          font-size: 12px;
+          color: var(--color-muted);
+          font-weight: var(--font-weight-normal);
+          margin-top: 2px;
+        }
+      }
+    }
+    
+    .logout-btn {
+      --color: var(--color-muted);
+      --background-hover: rgba(107, 114, 128, 0.1);
+      --border-radius: var(--border-radius-sm);
+      --padding-start: var(--spacing-sm);
+      --padding-end: var(--spacing-sm);
+      
+      ion-icon {
+        font-size: 20px;
+      }
+      
+      &:hover {
+        --color: var(--ion-color-danger);
+      }
+    }
+  }
+}
+
+/* Main Tabs */
+.main-tabs {
+  --ion-tab-bar-background: var(--color-surface);
+  --ion-tab-bar-border-color: rgba(2, 6, 23, 0.06);
+  
+  .custom-tab-bar {
+    --background: var(--color-surface);
+    --border: 1px solid rgba(2, 6, 23, 0.06);
+    box-shadow: 0 -2px 8px rgba(2, 6, 23, 0.04);
+    padding: var(--spacing-xs) 0 env(safe-area-inset-bottom);
+    
+    .tab-button {
+      --color: var(--color-muted);
+      --color-selected: var(--color-primary);
+      --background-focused: rgba(14, 165, 164, 0.08);
+      --ripple-color: var(--color-primary);
+      
+      font-weight: var(--font-weight-medium);
+      font-size: 12px;
+      transition: all 0.3s ease;
+      
+      &.tab-selected {
+        transform: translateY(-1px);
+        
+        ion-icon {
+          transform: scale(1.1);
+        }
+        
+        ion-label {
+          font-weight: var(--font-weight-semibold);
+        }
+      }
+      
+      ion-icon {
+        font-size: 24px;
+        margin-bottom: 2px;
+        transition: transform 0.3s ease;
+      }
+      
+      ion-label {
+        font-size: 11px;
+        font-family: var(--font-family);
+        transition: font-weight 0.3s ease;
+      }
+      
+      &:hover:not(.tab-selected) {
+        --color: var(--color-primary-shade);
+        
+        ion-icon {
+          transform: scale(1.05);
+        }
+      }
+    }
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .tabs-header .user-toolbar {
+    --padding-start: var(--spacing-md);
+    --padding-end: var(--spacing-md);
+    --min-height: 56px;
+    
+    .user-info {
+      gap: var(--spacing-sm);
+      
+      .user-icon {
+        font-size: 24px;
+        padding: 6px;
+      }
+      
+      .user-details .user-greeting {
+        font-size: 15px;
+      }
+    }
+  }
+  
+  .custom-tab-bar .tab-button {
+    ion-icon {
+      font-size: 22px;
+    }
+    
+    ion-label {
+      font-size: 10px;
+    }
+  }
+}
+
+/* Animation for tab switching */
+@keyframes tabPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.tab-button.tab-selected ion-icon {
+  animation: tabPulse 0.3s ease-out;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .tab-button,
+  .tab-button ion-icon,
+  .tab-button ion-label {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Focus styles */
+.tab-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.logout-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
