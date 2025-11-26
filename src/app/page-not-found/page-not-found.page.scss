@@ -1,0 +1,247 @@
+/* ============================================
+   Page Not Found Styles
+   ============================================ */
+
+.page-not-found-content {
+  --background: linear-gradient(135deg, var(--ion-color-primary-tint), var(--ion-color-secondary-tint));
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* ============================================
+   Hero Section
+   ============================================ */
+
+.not-found-hero {
+  text-align: center;
+  margin-bottom: 40px;
+  
+  .error-illustration {
+    position: relative;
+    margin-bottom: 30px;
+    
+    .error-icon {
+      font-size: 120px;
+      color: var(--ion-color-warning);
+      margin-bottom: 20px;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+    }
+    
+    .error-code {
+      font-size: 72px;
+      font-weight: 900;
+      color: var(--ion-color-primary);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      margin: 10px 0;
+    }
+  }
+  
+  .error-message {
+    h2 {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+      margin: 20px 0 10px 0;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    p {
+      font-size: 16px;
+      color: var(--ion-color-medium);
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+}
+
+/* ============================================
+   Action Buttons
+   ============================================ */
+
+.action-buttons {
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 40px;
+  
+  .home-button {
+    --background: var(--ion-color-primary);
+    --background-hover: var(--ion-color-primary-shade);
+    --color: white;
+    --border-radius: 12px;
+    --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.3);
+    
+    margin-bottom: 12px;
+    height: 50px;
+    font-weight: 600;
+    
+    &:hover {
+      transform: translateY(-2px);
+      --box-shadow: 0 6px 16px rgba(var(--ion-color-primary-rgb), 0.4);
+    }
+  }
+  
+  .back-button {
+    --border-color: var(--ion-color-medium);
+    --color: var(--ion-color-medium);
+    --border-radius: 12px;
+    
+    height: 50px;
+    font-weight: 500;
+    
+    &:hover {
+      transform: translateY(-2px);
+      --color: var(--ion-color-dark);
+      --border-color: var(--ion-color-dark);
+    }
+  }
+}
+
+/* ============================================
+   Help Section
+   ============================================ */
+
+.help-section {
+  width: 100%;
+  max-width: 400px;
+  
+  .help-card {
+    --background: white;
+    --color: var(--ion-color-dark);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    margin: 0;
+    
+    ion-card-content {
+      padding: 20px;
+      
+      .help-content {
+        display: flex;
+        align-items: flex-start;
+        
+        .help-icon {
+          font-size: 24px;
+          color: var(--ion-color-primary);
+          margin-right: 12px;
+          margin-top: 2px;
+          flex-shrink: 0;
+        }
+        
+        h4 {
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--ion-color-dark);
+          margin: 0 0 8px 0;
+        }
+        
+        p {
+          font-size: 14px;
+          color: var(--ion-color-medium);
+          margin: 0 0 8px 0;
+        }
+        
+        ul {
+          margin: 0;
+          padding-left: 16px;
+          
+          li {
+            font-size: 14px;
+            color: var(--ion-color-medium);
+            margin-bottom: 4px;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 480px) {
+  .page-not-found-content {
+    padding: 16px;
+  }
+  
+  .not-found-hero {
+    .error-illustration {
+      .error-icon {
+        font-size: 80px;
+      }
+      
+      .error-code {
+        font-size: 48px;
+      }
+    }
+    
+    .error-message {
+      h2 {
+        font-size: 20px;
+      }
+      
+      p {
+        font-size: 14px;
+      }
+    }
+  }
+  
+  .action-buttons {
+    max-width: 280px;
+  }
+  
+  .help-section {
+    max-width: 320px;
+  }
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.error-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ============================================
+   Dark Mode Support
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  .page-not-found-content {
+    --background: linear-gradient(135deg, var(--ion-color-dark), var(--ion-color-step-50));
+  }
+  
+  .help-card {
+    --background: var(--ion-color-step-100) !important;
+  }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .error-icon {
+    animation: none;
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

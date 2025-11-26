@@ -317,3 +317,254 @@ ion-button:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
+
+/* ============================================
+   Security Alert Styles
+   ============================================ */
+   
+.security-alert {
+  --background: white;
+  --border-radius: 16px;
+  --box-shadow: 0 8px 32px rgba(244, 63, 94, 0.15);
+  
+  .alert-head {
+    background: linear-gradient(135deg, var(--ion-color-danger), var(--ion-color-danger-shade));
+    color: white;
+    padding: 20px;
+    text-align: center;
+    border-radius: 16px 16px 0 0;
+    
+    h2 {
+      color: white !important;
+      font-weight: 600;
+      margin: 0;
+      font-size: 1.2rem;
+    }
+  }
+  
+  .alert-message {
+    padding: 24px;
+    line-height: 1.5;
+    
+    p {
+      margin: 12px 0;
+      display: flex;
+      align-items: flex-start;
+      
+      ion-icon {
+        color: var(--ion-color-primary);
+        margin-right: 12px;
+        margin-top: 2px;
+        font-size: 16px;
+        flex-shrink: 0;
+      }
+      
+      strong {
+        color: var(--ion-color-dark);
+        font-weight: 600;
+      }
+    }
+  }
+  
+  .alert-button-group {
+    padding: 0 24px 24px;
+    
+    .alert-button {
+      --background: var(--ion-color-danger);
+      --background-hover: var(--ion-color-danger-shade);
+      --color: white;
+      --border-radius: 12px;
+      --box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3);
+      font-weight: 600;
+      min-height: 48px;
+      width: 100%;
+    }
+  }
+}
+
+/* Alert error styles */
+.alert-error {
+  --background: white;
+  --border-radius: 12px;
+  
+  .alert-head h2 {
+    color: var(--ion-color-danger) !important;
+  }
+  
+  .alert-message {
+    color: var(--ion-color-dark);
+  }
+}
+
+/* Toast success styles */
+.toast-success {
+  --background: var(--ion-color-success);
+  --color: white;
+  --border-radius: 12px;
+}
+
+/* ============================================
+   Security Validation Styles
+   ============================================ */
+
+// Validaciones de seguridad en tiempo real
+.form-group {
+  .security-indicator {
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.85em;
+    transition: all 0.3s ease;
+    
+    &.safe {
+      background: rgba(var(--ion-color-success-rgb), 0.1);
+      color: var(--ion-color-success);
+      border: 1px solid rgba(var(--ion-color-success-rgb), 0.3);
+      
+      ion-icon {
+        color: var(--ion-color-success);
+      }
+    }
+    
+    &.warning {
+      background: rgba(var(--ion-color-warning-rgb), 0.1);
+      color: var(--ion-color-warning);
+      border: 1px solid rgba(var(--ion-color-warning-rgb), 0.3);
+      
+      ion-icon {
+        color: var(--ion-color-warning);
+      }
+    }
+    
+    &.danger {
+      background: rgba(var(--ion-color-danger-rgb), 0.1);
+      color: var(--ion-color-danger);
+      border: 1px solid rgba(var(--ion-color-danger-rgb), 0.3);
+      
+      ion-icon {
+        color: var(--ion-color-danger);
+      }
+    }
+    
+    ion-icon {
+      margin-right: 6px;
+      font-size: 1.1em;
+    }
+  }
+}
+
+// Indicadores de fuerza de contraseña
+.password-strength {
+  margin-top: 8px;
+  
+  .strength-bar {
+    height: 4px;
+    background: var(--ion-color-light);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 4px;
+    
+    .strength-fill {
+      height: 100%;
+      transition: all 0.3s ease;
+      border-radius: 2px;
+      
+      &.weak {
+        width: 25%;
+        background: var(--ion-color-danger);
+      }
+      
+      &.fair {
+        width: 50%;
+        background: var(--ion-color-warning);
+      }
+      
+      &.good {
+        width: 75%;
+        background: var(--ion-color-secondary);
+      }
+      
+      &.strong {
+        width: 100%;
+        background: var(--ion-color-success);
+      }
+    }
+  }
+  
+  .strength-text {
+    font-size: 0.8em;
+    text-align: center;
+    font-weight: 500;
+    
+    &.weak { color: var(--ion-color-danger); }
+    &.fair { color: var(--ion-color-warning); }
+    &.good { color: var(--ion-color-secondary); }
+    &.strong { color: var(--ion-color-success); }
+  }
+}
+
+/* ============================================
+   Auth Guard Alert Styles
+   ============================================ */
+
+.auth-guard-alert {
+  --background: white;
+  --border-radius: 16px;
+  --box-shadow: 0 8px 32px rgba(255, 152, 0, 0.15);
+  
+  .alert-head {
+    background: linear-gradient(135deg, var(--ion-color-warning), var(--ion-color-warning-shade));
+    color: white;
+    padding: 20px;
+    text-align: center;
+    border-radius: 16px 16px 0 0;
+    
+    h2 {
+      color: white !important;
+      font-weight: 600;
+      margin: 0;
+      font-size: 1.2rem;
+    }
+  }
+  
+  .alert-message {
+    padding: 24px;
+    line-height: 1.5;
+    
+    p {
+      margin: 12px 0;
+      display: flex;
+      align-items: flex-start;
+      
+      ion-icon {
+        color: var(--ion-color-warning);
+        margin-right: 12px;
+        margin-top: 2px;
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+      
+      strong {
+        color: var(--ion-color-dark);
+        font-weight: 600;
+      }
+    }
+  }
+  
+  .alert-button-group {
+    padding: 0 24px 24px;
+    
+    .alert-button {
+      --background: var(--ion-color-warning);
+      --background-hover: var(--ion-color-warning-shade);
+      --color: white;
+      --border-radius: 12px;
+      --box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+      font-weight: 600;
+      min-height: 48px;
+      width: 100%;
+    }
+  }
+}

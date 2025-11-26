@@ -1,0 +1,65 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Página No Encontrada</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="page-not-found-content">
+  
+  <!-- Hero Section -->
+  <div class="not-found-hero" [@fadeIn]>
+    <div class="error-illustration">
+      <ion-icon name="alert-circle-outline" class="error-icon" [@pulse]></ion-icon>
+      <div class="error-code">404</div>
+    </div>
+    
+    <div class="error-message">
+      <h2>¡Oops! Página no encontrada</h2>
+      <p>La página que estás buscando no existe o ha sido movida.</p>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-buttons" [@slideInUp]>
+    <ion-button 
+      expand="block" 
+      fill="solid" 
+      color="primary"
+      class="home-button"
+      (click)="goHome()">
+      <ion-icon name="home-outline" slot="start"></ion-icon>
+      Ir al Inicio
+    </ion-button>
+    
+    <ion-button 
+      expand="block" 
+      fill="outline" 
+      color="medium"
+      class="back-button"
+      (click)="goBack()">
+      <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+      Volver Atrás
+    </ion-button>
+  </div>
+
+  <!-- Additional Help -->
+  <div class="help-section" [@fadeIn]>
+    <ion-card class="help-card">
+      <ion-card-content>
+        <div class="help-content">
+          <ion-icon name="information-circle-outline" class="help-icon"></ion-icon>
+          <div>
+            <h4>¿Necesitas ayuda?</h4>
+            <p>Si crees que esto es un error, puedes:</p>
+            <ul>
+              <li>Verificar la URL</li>
+              <li>Regresar a la página anterior</li>
+              <li>Contactar al soporte técnico</li>
+            </ul>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+</ion-content>
