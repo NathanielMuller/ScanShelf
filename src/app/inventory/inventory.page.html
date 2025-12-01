@@ -1,0 +1,195 @@
+<ion-header class="inventory-header">
+  <ion-toolbar class="main-toolbar">
+    <ion-title class="page-title">
+      <ion-icon name="cube-outline" class="title-icon"></ion-icon>
+      Inventario
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="loadProductsDirect()" class="refresh-btn">
+        <ion-icon name="refresh-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="inventory-page inventory-content" fullscreen>
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content
+      refreshingText="Actualizando inventario..."
+      pullingText="Desliza para actualizar">
+    </ion-refresher-content>
+  </ion-refresher>
+
+
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent" class="main-spinner"></ion-spinner>
+    <p class="loading-text">Cargando inventario...</p>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading" class="inventory-container">
+    
+    <!-- Summary Stats -->
+    <div class="summary-section">
+      <h3 class="summary-title">Resumen del Inventario</h3>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <ion-icon name="cube-outline" class="stat-icon primary"></ion-icon>
+          <div class="stat-info">
+            <span class="stat-number">{{ products.length }}</span>
+            <span class="stat-label">Productos</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <ion-icon name="layers-outline" class="stat-icon success"></ion-icon>
+          <div class="stat-info">
+            <span class="stat-number">{{ getTotalStock() }}</span>
+            <span class="stat-label">Stock Total</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <ion-icon name="pricetags-outline" class="stat-icon tertiary"></ion-icon>
+          <div class="stat-info">
+            <span class="stat-number">{{ getUniqueCategories() }}</span>
+            <span class="stat-label">Categorías</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <ion-icon name="alert-circle-outline" class="stat-icon warning"></ion-icon>
+          <div class="stat-info">
+            <span class="stat-number">{{ getLowStockCount() }}</span>
+            <span class="stat-label">Stock Bajo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diagnostic banner -->
+    <div *ngIf="diagnosticMessages.length > 0 && showDiagnostics" class="diagnostic-banner">
+      <ion-icon name="information-circle-outline" color="warning"></ion-icon>
+      <span class="diagnostic-text">{{ diagnosticMessages[diagnosticMessages.length - 1]?.text }}</span>
+      <ion-button fill="clear" size="small" (click)="showDiagnostics = false">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+
+    <!-- Filtros section -->
+    <div class="filters-section" *ngIf="products.length > 0">
+      <div class="search-container">
+        <ion-searchbar
+          [(ngModel)]="searchTerm"
+          (ionInput)="filterProducts()"
+          placeholder="Buscar productos..."
+          show-clear-button="focus"
+          debounce="300">
+        </ion-searchbar>
+      </div>
+      
+      <div class="category-filters">
+        <ion-select 
+          [(ngModel)]="selectedCategory" 
+          (ionChange)="filterProducts()"
+          placeholder="Filtrar por categoría"
+          interface="popover">
+          <ion-select-option value="all">Todas las categorías</ion-select-option>
+          <ion-select-option *ngFor="let category of getUniqueCategoriesArray()" [value]="category">
+            {{ category }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+    </div>
+    <!-- No products message -->
+    <div *ngIf="products.length === 0" class="empty-state">
+      <ion-icon name="cube-outline" class="empty-icon"></ion-icon>
+      <h3 class="empty-title">No hay productos</h3>
+      <p class="empty-subtitle">
+        Comienza agregando productos para gestionar tu inventario
+      </p>
+      <ion-button fill="solid" (click)="openAddProductModal()" class="add-btn">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        Agregar Producto
+      </ion-button>
+    </div>
+
+    <!-- No filtered products message -->
+    <div *ngIf="products.length > 0 && filteredProducts.length === 0" class="empty-state">
+      <ion-icon name="search-outline" class="empty-icon"></ion-icon>
+      <h3 class="empty-title">No se encontraron productos</h3>
+      <p class="empty-subtitle">
+        Intenta con otros términos de búsqueda o filtros
+      </p>
+    </div>
+
+    <!-- Products List with Timeline Style -->
+    <div *ngIf="!isLoading && filteredProducts.length > 0" class="products-timeline">
+      
+      <div class="timeline">
+        <div 
+          *ngFor="let product of filteredProducts; let i = index" 
+          class="timeline-item card-modern"
+          button
+          (click)="viewProductDetails(product)">
+          
+          <div class="product-indicator">
+            <ion-icon 
+              [name]="getCategoryIcon(product.category)"
+              [color]="getCategoryColor(product.category)"
+              class="product-icon">
+            </ion-icon>
+          </div>
+          
+          <div class="product-content">
+            <div class="product-header">
+              <div class="product-info">
+                <h4 class="product-name">{{ product.name }}</h4>
+                <p class="product-sku">{{ product.sku }}</p>
+              </div>
+              <div class="product-stock" 
+                   [class.high-stock]="product.stock > 20"
+                   [class.medium-stock]="product.stock > 5 && product.stock <= 20"
+                   [class.low-stock]="product.stock <= 5 && product.stock > 0"
+                   [class.no-stock]="product.stock === 0">
+                {{ product.stock }} unidades
+              </div>
+            </div>
+            
+            <div class="product-details">
+              <p class="product-category-info">
+                <ion-icon name="pricetags-outline" class="detail-icon"></ion-icon>
+                {{ product.category }} - ${{ product.price | number:'1.2-2' }}
+              </p>
+              
+              <p *ngIf="product.brand" class="product-brand">
+                <ion-icon name="business-outline" class="detail-icon"></ion-icon>
+                {{ product.brand }}
+              </p>
+              
+              <p *ngIf="product.description" class="product-description">
+                <ion-icon name="document-text-outline" class="detail-icon"></ion-icon>
+                {{ product.description | slice:0:80 }}{{ product.description.length > 80 ? '...' : '' }}
+              </p>
+            </div>
+            
+            <div class="product-actions-badge">
+              <ion-button fill="clear" size="small" (click)="editProduct(product, i); $event.stopPropagation()">
+                <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" size="small" color="danger" (click)="deleteProduct(product); $event.stopPropagation()">
+                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Action Button -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary" (click)="openAddProductModal()" class="add-fab">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

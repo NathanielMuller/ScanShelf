@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { ScanPageRoutingModule } from './scan-routing.module';
 
 import { ScanPage } from './scan.page';
+import { ScanProductDetailModalComponent } from './scan-product-detail-modal/scan-product-detail-modal.component';
 
 @NgModule({
   imports: [
@@ -15,6 +16,6 @@ import { ScanPage } from './scan.page';
     IonicModule,
     ScanPageRoutingModule
   ],
-  declarations: [ScanPage]
+  declarations: [ScanPage, ScanProductDetailModalComponent]
 })
 export class ScanPageModule {}

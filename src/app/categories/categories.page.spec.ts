@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ProductFormPage } from './product-form.page';
+import { CategoriesPage } from './categories.page';
 
-describe('ProductFormPage', () => {
-  let component: ProductFormPage;
-  let fixture: ComponentFixture<ProductFormPage>;
+describe('CategoriesPage', () => {
+  let component: CategoriesPage;
+  let fixture: ComponentFixture<CategoriesPage>;
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ProductFormPage);
+    fixture = TestBed.createComponent(CategoriesPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

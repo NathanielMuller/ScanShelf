@@ -8,37 +8,30 @@ const routes: Routes = [
     path: '',
     component: TabsPage,
     children: [
+
       {
-        path: 'products',
-        loadChildren: () => import('../products/products.module').then(m => m.ProductsPageModule),
-        data: { allowGuest: true } // Los invitados pueden ver productos
+        path: 'inventory',
+        loadChildren: () => import('../inventory/inventory.module').then(m => m.InventoryPageModule)
       },
       {
         path: 'scan',
-        loadChildren: () => import('../scan/scan.module').then(m => m.ScanPageModule),
-        canActivate: [authGuard],
-        data: { allowGuest: false } // Solo usuarios registrados pueden escanear
+        loadChildren: () => import('../scan/scan.module').then(m => m.ScanPageModule)
       },
       {
         path: 'movements',
-        loadChildren: () => import('../movements/movements.module').then(m => m.MovementsPageModule),
-        canActivate: [authGuard],
-        data: { allowGuest: false } // Solo usuarios registrados pueden ver movimientos
+        loadChildren: () => import('../movements/movements.module').then(m => m.MovementsPageModule)
       },
       {
         path: 'reports',
-        loadChildren: () => import('../reports/reports.module').then(m => m.ReportsPageModule),
-        canActivate: [authGuard],
-        data: { allowGuest: false } // Solo usuarios registrados pueden ver reportes
+        loadChildren: () => import('../reports/reports.module').then(m => m.ReportsPageModule)
       },
       {
         path: 'settings',
-        loadChildren: () => import('../settings/settings.module').then(m => m.SettingsPageModule),
-        data: { allowGuest: true } // Los invitados pueden acceder a configuraciones básicas
+        loadChildren: () => import('../settings/settings.module').then(m => m.SettingsPageModule)
       },
       {
         path: '',
-        redirectTo: '/tabs/products',
+        redirectTo: '/tabs/inventory',
         pathMatch: 'full'
       }
     ]

@@ -1,0 +1,279 @@
+/* Header personalizado */
+ion-header ion-toolbar {
+  --background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+  --color: white;
+  
+  ion-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: white;
+  }
+
+  ion-buttons ion-button {
+    --color: white;
+    --background-hover: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.modal-content {
+  --ion-background-color: var(--ion-color-light, #f8f9fa);
+}
+
+.form-section {
+  margin: 16px;
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+
+  .form-item {
+    --padding-start: 0;
+    --padding-end: 0;
+    --inner-padding-end: 0;
+    margin-bottom: 16px;
+
+    ion-label {
+      font-weight: 500;
+      color: var(--ion-color-dark);
+      margin-bottom: 8px !important;
+    }
+
+    ion-input, ion-select, ion-textarea {
+      --color: var(--ion-color-dark) !important;
+      --placeholder-color: var(--ion-color-medium) !important;
+    }
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+  }
+
+  .error-message {
+    margin-top: -12px;
+    margin-bottom: 12px;
+
+    small {
+      color: var(--ion-color-danger);
+      font-size: 12px;
+    }
+  }
+
+  .image-container {
+    margin-top: 8px;
+
+    .image-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      border: 2px dashed var(--ion-color-medium);
+      border-radius: 12px;
+      background: var(--ion-color-light);
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        border-color: var(--ion-color-primary);
+        background: rgba(var(--ion-color-primary-rgb), 0.05);
+      }
+
+      ion-icon {
+        font-size: 48px;
+        color: var(--ion-color-medium);
+        margin-bottom: 8px;
+      }
+
+      p {
+        color: var(--ion-color-medium);
+        font-size: 14px;
+        margin: 0;
+      }
+    }
+
+    .image-preview {
+      position: relative;
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+        object-fit: cover;
+        display: block;
+      }
+
+      .remove-image-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        --color: white;
+        --background: rgba(0, 0, 0, 0.6);
+        --border-radius: 50%;
+        width: 36px;
+        height: 36px;
+
+        ion-icon {
+          font-size: 28px;
+        }
+      }
+    }
+  }
+}
+
+.status-message {
+  padding: 8px 16px;
+  
+  .status-chip {
+    --background: rgba(var(--ion-color-primary-rgb), 0.1);
+    --color: var(--ion-color-primary-shade);
+    width: 100%;
+    justify-content: flex-start;
+    
+    ion-icon {
+      margin-right: 8px;
+    }
+    
+    &[color="success"] {
+      --background: rgba(var(--ion-color-success-rgb), 0.1);
+      --color: var(--ion-color-success-shade);
+    }
+  }
+}
+
+.form-buttons {
+  padding: 20px 16px 16px 16px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+
+  .cancel-btn {
+    --color: var(--ion-color-medium);
+    --background-hover: rgba(var(--ion-color-medium-rgb), 0.1);
+  }
+
+  .save-btn {
+    --background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+    --color: white;
+    height: 44px;
+    font-weight: 600;
+    --border-radius: 12px;
+    min-width: 120px;
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column-reverse;
+    gap: 8px;
+    
+    ion-button {
+      width: 100%;
+    }
+  }
+}
+
+/* Header personalizado */
+ion-header ion-toolbar {
+  ion-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+
+  ion-buttons ion-button {
+    --color: white;
+  }
+}
+
+/* Scanner styles */
+:host {
+  .scanner-ui {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    .scanner-title {
+      color: white;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .scanner-frame {
+      width: 80%;
+      max-width: 300px;
+      aspect-ratio: 1;
+      border: 3px solid var(--ion-color-primary);
+      border-radius: 16px;
+      position: relative;
+
+      &::before,
+      &::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border: 3px solid white;
+      }
+
+      &::before {
+        top: -3px;
+        left: -3px;
+        border-right: none;
+        border-bottom: none;
+      }
+
+      &::after {
+        bottom: -3px;
+        right: -3px;
+        border-left: none;
+        border-top: none;
+      }
+    }
+
+    .scanner-instructions {
+      color: white;
+      text-align: center;
+      margin-top: 30px;
+      font-size: 16px;
+    }
+
+    .scanner-cancel-btn {
+      margin-top: 30px;
+    }
+  }
+}

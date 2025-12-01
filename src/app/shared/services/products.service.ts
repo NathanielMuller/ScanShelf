@@ -1,356 +1,367 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { DatabaseService, Product, Movement } from './database.service';
+import { InventoryCodeService } from './inventory-code.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductsService {
-  private productsSubject = new BehaviorSubject<Product[]>([]);
-  public products$: Observable<Product[]> = this.productsSubject.asObservable();
+  
+  // Estados de carga
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  public isLoading$ = this.loadingSubject.asObservable();
 
-  private movementsSubject = new BehaviorSubject<Movement[]>([]);
-  public movements$: Observable<Movement[]> = this.movementsSubject.asObservable();
-
-  constructor(private databaseService: DatabaseService) {
-    this.loadProducts();
-    this.loadMovements();
+  constructor(
+    private databaseService: DatabaseService,
+    private inventoryCodeService: InventoryCodeService
+  ) {
+    this.initializeService();
   }
 
-  // =====================================================
-  // MÉTODOS PARA PRODUCTOS
-  // =====================================================
-
   /**
-   * Cargar todos los productos desde la base de datos
+   * Inicializar el servicio con manejo robusto
    */
-  async loadProducts(): Promise<void> {
+  private async initializeService(): Promise<void> {
     try {
-      const products = await this.databaseService.getProducts();
-      this.productsSubject.next(products);
+      console.log('🔄 Inicializando ProductsService...');
+      
+      // Inicializar base de datos de forma síncrona
+      await this.databaseService.initializeDatabase();
+      console.log('✅ DatabaseService inicializado');
+      
+      // Verificar que los datos estén cargados
+      await this.ensureDataAvailability();
+      console.log('✅ Disponibilidad de datos asegurada');
+      
+      console.log('✅ ProductsService inicializado completamente');
     } catch (error) {
-      console.error('Error al cargar productos:', error);
+      console.error('❌ Error crítico al inicializar ProductsService:', error);
+      // Intentar recuperación
+      await this.attemptServiceRecovery();
     }
   }
 
   /**
-   * Obtener todos los productos (Observable)
+   * Asegurar que los datos estén disponibles
+   */
+  private async ensureDataAvailability(): Promise<void> {
+    try {
+      // Verificar que hay productos disponibles
+      const products = await this.databaseService.getProducts();
+      if (products.length === 0) {
+        console.log('⚠️ No hay productos, cargando datos de ejemplo...');
+        await this.databaseService.loadSampleProducts();
+      }
+      console.log(`📦 ${products.length} productos disponibles`);
+    } catch (error) {
+      console.warn('⚠️ Error al verificar disponibilidad de datos:', error);
+    }
+  }
+
+  /**
+   * Intentar recuperación del servicio
+   */
+  private async attemptServiceRecovery(): Promise<void> {
+    try {
+      console.log('🔧 Intentando recuperación del ProductsService...');
+      
+      // Esperar un poco y reintentar
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Verificar estado de la base de datos
+      const isReady = await this.databaseService.isDatabaseReady();
+      if (isReady) {
+        await this.populateTestData();
+        console.log('✅ Recuperación exitosa');
+      }
+    } catch (recoveryError) {
+      console.error('❌ Recuperación del servicio falló:', recoveryError);
+    }
+  }
+
+  // ===== OBSERVABLES =====
+
+  /**
+   * Obtener productos como Observable
    */
   getProducts(): Observable<Product[]> {
-    return this.products$;
+    return this.databaseService.products$;
   }
 
   /**
-   * Obtener todos los productos (Promesa)
+   * Obtener movimientos como Observable
+   */
+  getMovements(): Observable<Movement[]> {
+    return this.databaseService.movements$;
+  }
+
+  // ===== MÉTODOS DE PRODUCTOS =====
+
+  /**
+   * Obtener todos los productos (Promesa) con recuperación automática
    */
   async getProductsAsync(): Promise<Product[]> {
-    return await this.databaseService.getProducts();
+    this.loadingSubject.next(true);
+    try {
+      let products = await this.databaseService.getProducts();
+      
+      // Si no hay productos, intentar cargar datos de ejemplo
+      if (products.length === 0) {
+        console.log('⚠️ No hay productos, intentando recuperación...');
+        await this.databaseService.checkAndReinitializeData();
+        products = await this.databaseService.getProducts();
+      }
+      
+      return products;
+    } catch (error) {
+      console.error('❌ Error al obtener productos:', error);
+      
+      // Intentar recuperación
+      try {
+        await this.populateTestData();
+        return await this.databaseService.getProducts();
+      } catch (recoveryError) {
+        console.error('❌ Recuperación falló:', recoveryError);
+        return [];
+      }
+    } finally {
+      this.loadingSubject.next(false);
+    }
   }
 
   /**
-   * Obtener un producto por ID
+   * Obtener producto por ID
    */
   async getProduct(id: number): Promise<Product | null> {
-    return await this.databaseService.getProductById(id);
+    this.loadingSubject.next(true);
+    try {
+      return await this.databaseService.getProductById(id);
+    } finally {
+      this.loadingSubject.next(false);
+    }
   }
 
   /**
    * Buscar producto por código de barras
    */
   async getProductByBarcode(barcode: string): Promise<Product | null> {
-    return await this.databaseService.getProductByBarcode(barcode);
+    if (!barcode?.trim()) {
+      throw new Error('Código de barras requerido');
+    }
+    
+    this.loadingSubject.next(true);
+    try {
+      return await this.databaseService.getProductByBarcode(barcode);
+    } finally {
+      this.loadingSubject.next(false);
+    }
   }
 
   /**
-   * Agregar un nuevo producto
+   * Agregar producto
    */
   async addProduct(productData: Omit<Product, 'id'>): Promise<number> {
+    this.loadingSubject.next(true);
     try {
-      const id = await this.databaseService.addProduct(productData);
-      await this.loadProducts(); // Recargar la lista
-      return id;
-    } catch (error) {
-      console.error('Error al agregar producto:', error);
-      throw error;
+      return await this.databaseService.addProduct(productData);
+    } finally {
+      this.loadingSubject.next(false);
     }
   }
 
   /**
-   * Actualizar un producto existente
+   * Crear producto con códigos automáticos
+   */
+  async createProductWithAutoGeneratedCodes(productData: {
+    name: string;
+    category: string;
+    stock: number;
+    minStock: number;
+    price: number;
+    description?: string;
+  }): Promise<number> {
+    this.loadingSubject.next(true);
+    try {
+      const [existingSKUs, existingBarcodes] = await Promise.all([
+        this.databaseService.getAllSKUs(),
+        this.databaseService.getAllBarcodes()
+      ]);
+
+      const sku = this.inventoryCodeService.generateSKU(productData.category, existingSKUs);
+      const barcode = this.inventoryCodeService.generateAlternativeBarcode(existingBarcodes);
+
+      const newProduct: Omit<Product, 'id'> = {
+        ...productData,
+        sku,
+        barcode,
+        status: 'active'
+      };
+
+      return await this.addProduct(newProduct);
+    } finally {
+      this.loadingSubject.next(false);
+    }
+  }
+
+  /**
+   * Actualizar producto
    */
   async updateProduct(id: number, productData: Partial<Product>): Promise<boolean> {
+    this.loadingSubject.next(true);
     try {
-      const success = await this.databaseService.updateProduct(id, productData);
-      if (success) {
-        await this.loadProducts(); // Recargar la lista
-      }
-      return success;
-    } catch (error) {
-      console.error('Error al actualizar producto:', error);
-      return false;
+      return await this.databaseService.updateProduct(id, productData);
+    } finally {
+      this.loadingSubject.next(false);
     }
   }
 
   /**
-   * Eliminar un producto
+   * Eliminar producto
    */
   async deleteProduct(id: number): Promise<boolean> {
+    this.loadingSubject.next(true);
     try {
-      const success = await this.databaseService.deleteProduct(id);
-      if (success) {
-        await this.loadProducts(); // Recargar la lista
-      }
-      return success;
-    } catch (error) {
-      console.error('Error al eliminar producto:', error);
-      return false;
+      return await this.databaseService.deleteProduct(id);
+    } finally {
+      this.loadingSubject.next(false);
     }
   }
 
-  // =====================================================
-  // MÉTODOS PARA MOVIMIENTOS
-  // =====================================================
+  // ===== MÉTODOS DE MOVIMIENTOS =====
 
   /**
-   * Cargar todos los movimientos desde la base de datos
-   */
-  async loadMovements(): Promise<void> {
-    try {
-      const movements = await this.databaseService.getMovements();
-      this.movementsSubject.next(movements);
-    } catch (error) {
-      console.error('Error al cargar movimientos:', error);
-    }
-  }
-
-  /**
-   * Obtener todos los movimientos (Observable)
-   */
-  getMovements(): Observable<Movement[]> {
-    return this.movements$;
-  }
-
-  /**
-   * Obtener todos los movimientos (Promesa)
-   */
-  async getMovementsAsync(): Promise<Movement[]> {
-    return await this.databaseService.getMovements();
-  }
-
-  /**
-   * Agregar un nuevo movimiento de inventario
+   * Agregar movimiento
    */
   async addMovement(movementData: Omit<Movement, 'id'>): Promise<number> {
+    this.loadingSubject.next(true);
     try {
-      const id = await this.databaseService.addMovement(movementData);
-      await this.loadMovements(); // Recargar movimientos
-      await this.loadProducts();  // Recargar productos (por el cambio de stock)
-      return id;
-    } catch (error) {
-      console.error('Error al agregar movimiento:', error);
-      throw error;
+      return await this.databaseService.addMovement(movementData);
+    } finally {
+      this.loadingSubject.next(false);
     }
   }
 
   /**
-   * Registrar entrada de productos
+   * Registrar entrada
    */
   async registerEntry(productId: number, quantity: number, reason: string, userId: string): Promise<number> {
     return await this.addMovement({
       productId,
       type: 'entrada',
       quantity,
-      reason,
+      reason: reason || 'Entrada de inventario',
       userId
     });
   }
 
   /**
-   * Registrar salida de productos
+   * Registrar salida
    */
   async registerExit(productId: number, quantity: number, reason: string, userId: string): Promise<number> {
+    const product = await this.getProduct(productId);
+    if (!product) {
+      throw new Error('Producto no encontrado');
+    }
+    if (product.stock < quantity) {
+      throw new Error(`Stock insuficiente. Disponible: ${product.stock}`);
+    }
+    
     return await this.addMovement({
       productId,
       type: 'salida',
       quantity,
-      reason,
+      reason: reason || 'Salida de inventario',
       userId
     });
   }
 
   /**
-   * Ajustar stock de un producto
+   * Ajustar stock
    */
   async adjustStock(productId: number, newStock: number, reason: string, userId: string): Promise<number> {
     return await this.addMovement({
       productId,
       type: 'ajuste',
       quantity: newStock,
-      reason,
+      reason: reason || 'Ajuste de inventario',
       userId
     });
   }
 
-  // =====================================================
-  // MÉTODOS DE BÚSQUEDA Y FILTROS
-  // =====================================================
-
-  /**
-   * Buscar productos por nombre o código de barras
-   */
-  async searchProducts(query: string): Promise<Product[]> {
-    const allProducts = await this.getProductsAsync();
-    
-    if (!query.trim()) {
-      return allProducts;
-    }
-
-    const searchTerm = query.toLowerCase();
-    
-    return allProducts.filter(product => 
-      product.name.toLowerCase().includes(searchTerm) ||
-      product.barcode.toLowerCase().includes(searchTerm) ||
-      product.category.toLowerCase().includes(searchTerm)
-    );
-  }
-
-  /**
-   * Filtrar productos por categoría
-   */
-  async filterByCategory(category: string): Promise<Product[]> {
-    const allProducts = await this.getProductsAsync();
-    
-    if (!category || category === 'all') {
-      return allProducts;
-    }
-
-    return allProducts.filter(product => product.category === category);
-  }
+  // ===== MÉTODOS DE ESTADÍSTICAS =====
 
   /**
    * Obtener productos con stock bajo
    */
   async getLowStockProducts(): Promise<Product[]> {
-    return await this.databaseService.getLowStockProducts();
+    this.loadingSubject.next(true);
+    try {
+      return await this.databaseService.getLowStockProducts();
+    } finally {
+      this.loadingSubject.next(false);
+    }
   }
 
   /**
-   * Obtener categorías únicas de productos
+   * Obtener estadísticas
+   */
+  async getInventoryStats() {
+    this.loadingSubject.next(true);
+    try {
+      return await this.databaseService.getStats();
+    } finally {
+      this.loadingSubject.next(false);
+    }
+  }
+
+  /**
+   * Obtener categorías
    */
   async getCategories(): Promise<string[]> {
-    const products = await this.getProductsAsync();
-    const categories = [...new Set(products.map(p => p.category))];
-    return categories.sort();
-  }
-
-  // =====================================================
-  // MÉTODOS DE ESTADÍSTICAS
-  // =====================================================
-
-  /**
-   * Obtener estadísticas del inventario
-   */
-  async getInventoryStats(): Promise<{
-    totalProducts: number;
-    lowStockProducts: number;
-    totalMovements: number;
-    totalValue: number;
-    categoriesCount: number;
-  }> {
-    const stats = await this.databaseService.getStats();
-    const categories = await this.getCategories();
-    
-    return {
-      ...stats,
-      categoriesCount: categories.length
-    };
+    try {
+      const categories = await this.databaseService.getCategories();
+      return categories.map(cat => cat.name).sort();
+    } catch (error) {
+      console.error('Error al cargar categorías, usando fallback:', error);
+      return this.inventoryCodeService.getAvailableCategories();
+    }
   }
 
   /**
-   * Obtener productos más movidos (últimos 30 días)
+   * Poblar base de datos con datos de prueba de forma robusta
    */
-  async getMostMovedProducts(limit: number = 10): Promise<Array<{
-    product: Product;
-    totalMovements: number;
-  }>> {
-    const products = await this.getProductsAsync();
-    const movements = await this.getMovementsAsync();
-    
-    // Calcular movimientos por producto en los últimos 30 días
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
-    const productMovements = products.map(product => {
-      const productMovementCount = movements.filter(movement => 
-        movement.productId === product.id &&
-        new Date(movement.createdAt || '') >= thirtyDaysAgo
-      ).length;
+  async populateTestData(): Promise<void> {
+    try {
+      console.log('🔧 Poblando base de datos con datos de prueba...');
       
-      return {
-        product,
-        totalMovements: productMovementCount
-      };
-    });
-    
-    return productMovements
-      .sort((a, b) => b.totalMovements - a.totalMovements)
-      .slice(0, limit);
-  }
-
-  // =====================================================
-  // MÉTODOS DE VALIDACIÓN
-  // =====================================================
-
-  /**
-   * Validar que un código de barras no exista
-   */
-  async isBarcodeUnique(barcode: string, excludeId?: number): Promise<boolean> {
-    const product = await this.getProductByBarcode(barcode);
-    
-    if (!product) {
-      return true; // No existe, es único
+      // Asegurar que la base de datos esté lista
+      const isReady = await this.databaseService.isDatabaseReady();
+      if (!isReady) {
+        throw new Error('Base de datos no está lista');
+      }
+      
+      // Cargar productos de ejemplo directamente
+      await this.databaseService.loadSampleProducts();
+      
+      // Verificar que los productos se cargaron
+      const products = await this.databaseService.getProducts();
+      if (products.length === 0) {
+        throw new Error('No se pudieron cargar los productos de ejemplo');
+      }
+      
+      console.log(`✅ Datos de prueba poblados correctamente: ${products.length} productos`);
+    } catch (error) {
+      console.error('❌ Error al poblar datos de prueba:', error);
+      
+      // Intentar método de recuperación alternativo
+      try {
+        await this.databaseService.checkAndReinitializeData();
+        console.log('✅ Recuperación alternativa exitosa');
+      } catch (recoveryError) {
+        console.error('❌ Recuperación alternativa falló:', recoveryError);
+        throw error;
+      }
     }
-    
-    if (excludeId && product.id === excludeId) {
-      return true; // Es el mismo producto que estamos editando
-    }
-    
-    return false; // Ya existe otro producto con este código
-  }
-
-  /**
-   * Validar datos del producto antes de guardar
-   */
-  validateProduct(product: Partial<Product>): { isValid: boolean; errors: string[] } {
-    const errors: string[] = [];
-    
-    if (!product.name || product.name.trim().length < 2) {
-      errors.push('El nombre debe tener al menos 2 caracteres');
-    }
-    
-    if (!product.barcode || product.barcode.trim().length < 3) {
-      errors.push('El código de barras debe tener al menos 3 caracteres');
-    }
-    
-    if (!product.category || product.category.trim().length === 0) {
-      errors.push('La categoría es requerida');
-    }
-    
-    if (product.stock !== undefined && product.stock < 0) {
-      errors.push('El stock no puede ser negativo');
-    }
-    
-    if (product.minStock !== undefined && product.minStock < 0) {
-      errors.push('El stock mínimo no puede ser negativo');
-    }
-    
-    if (product.price !== undefined && product.price < 0) {
-      errors.push('El precio no puede ser negativo');
-    }
-    
-    return {
-      isValid: errors.length === 0,
-      errors
-    };
   }
 }

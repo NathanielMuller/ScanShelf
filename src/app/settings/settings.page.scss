@@ -239,25 +239,8 @@ ion-content {
 }
 
 /* ============================================
-   Dark Mode Support (Future)
+   Dark Mode Completely Removed
    ============================================ */
-
-@media (prefers-color-scheme: dark) {
-  .settings-section:not(.profile-section) .section-title {
-    color: var(--ion-color-light);
-  }
-  
-  .setting-card {
-    --background: var(--ion-color-step-50);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-    
-    ion-item ion-label {
-      h3 {
-        color: var(--ion-color-light);
-      }
-    }
-  }
-}
 
 /* ============================================
    Animation Classes

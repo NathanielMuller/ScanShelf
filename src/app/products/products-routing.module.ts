@@ -7,15 +7,11 @@ const routes: Routes = [
   {
     path: '',
     component: ProductsPage
-  },  {
-    path: 'product-detail',
-    loadChildren: () => import('./product-detail/product-detail.module').then( m => m.ProductDetailPageModule)
   },
   {
-    path: 'product-form',
-    loadChildren: () => import('./product-form/product-form.module').then( m => m.ProductFormPageModule)
+    path: 'detail/:id',
+    loadChildren: () => import('../product-detail/product-detail.module').then( m => m.ProductDetailPageModule)
   }
-
 ];
 
 @NgModule({

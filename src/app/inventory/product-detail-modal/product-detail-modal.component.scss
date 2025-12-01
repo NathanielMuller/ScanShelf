@@ -1,0 +1,234 @@
+ion-header ion-toolbar {
+  --background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
+  --color: white;
+
+  ion-title {
+    font-weight: 600;
+    color: white;
+  }
+
+  ion-buttons ion-button {
+    --color: white;
+  }
+}
+
+.product-detail-content {
+  --background: var(--ion-color-light);
+}
+
+.product-image-container {
+  width: 100%;
+  height: 300px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  .product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.product-image-placeholder {
+  width: 100%;
+  height: 300px;
+  background: var(--ion-color-light-shade);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--ion-color-medium);
+
+  ion-icon {
+    font-size: 80px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: 16px;
+    margin: 0;
+  }
+}
+
+.product-main-info {
+  background: white;
+  padding: 20px;
+  margin-bottom: 16px;
+
+  .product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+
+    .product-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ion-color-dark);
+      margin: 0;
+      flex: 1;
+      margin-right: 12px;
+    }
+
+    .stock-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 12px;
+    }
+  }
+
+  .product-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--ion-color-medium);
+
+      ion-icon {
+        font-size: 18px;
+      }
+    }
+
+    .product-category {
+      color: var(--ion-color-primary);
+      font-weight: 500;
+    }
+  }
+}
+
+.details-container {
+  padding: 0 16px 16px 16px;
+}
+
+.detail-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      &.full-width {
+        grid-column: 1 / -1;
+      }
+
+      .info-label {
+        font-size: 12px;
+        color: var(--ion-color-medium);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .info-value {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+
+        &.highlight {
+          color: var(--ion-color-success);
+          font-size: 18px;
+
+          &.warning {
+            color: var(--ion-color-warning);
+          }
+
+          &.danger {
+            color: var(--ion-color-danger);
+          }
+        }
+
+        &.price {
+          color: var(--ion-color-primary);
+          font-size: 24px;
+        }
+
+        &.code {
+          font-family: 'Courier New', monospace;
+          font-size: 14px;
+          background: var(--ion-color-light);
+          padding: 4px 8px;
+          border-radius: 4px;
+          color: var(--ion-color-primary);
+        }
+      }
+    }
+  }
+
+  .product-description {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ion-color-dark);
+    margin: 0;
+  }
+}
+
+.action-buttons {
+  padding: 16px;
+  background: white;
+  border-top: 1px solid var(--ion-color-light-shade);
+
+  .action-btn {
+    margin-bottom: 12px;
+    font-weight: 600;
+    --border-radius: 12px;
+    height: 48px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .product-main-info .product-header {
+    flex-direction: column;
+    gap: 12px;
+
+    .stock-badge {
+      align-self: flex-start;
+    }
+  }
+
+  .detail-card .info-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+
+    .info-item.full-width {
+      grid-column: 1;
+    }
+  }
+}

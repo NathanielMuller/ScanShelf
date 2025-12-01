@@ -26,15 +26,12 @@
 @import "@ionic/angular/css/flex-utils.css";
 
 /**
- * Ionic Dark Mode
+ * Light Mode Only - Dark Mode Disabled
  * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
+ * Dark mode has been completely removed from the application
  */
 
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import "@ionic/angular/css/palettes/dark.system.css";
+/* All dark mode imports REMOVED */
 
 /**
  * ScanShelf Custom Variables & Styles
@@ -203,5 +200,119 @@
 @for $i from 1 through 10 {
   .animate-stagger-#{$i} {
     animation-delay: #{$i * 60}ms;
+  }
+}
+
+/**
+ * Form Input Fixes
+ * -----------------------------------------------------
+ * Fix for input visibility and placeholder text
+ */
+
+/* Ion Input Fixes */
+ion-input {
+  --color: var(--color-text-dark) !important;
+  --placeholder-color: var(--color-muted) !important;
+  --background: var(--color-surface) !important;
+  
+  input {
+    color: var(--color-text-dark) !important;
+    
+    &::placeholder {
+      color: var(--color-muted) !important;
+      opacity: 0.7 !important;
+    }
+  }
+}
+
+/* Ion Select Fixes */
+ion-select {
+  --color: var(--color-text-dark) !important;
+  --placeholder-color: var(--color-muted) !important;
+  
+  .select-text {
+    color: var(--color-text-dark) !important;
+  }
+  
+  .select-placeholder {
+    color: var(--color-muted) !important;
+    opacity: 0.7 !important;
+  }
+}
+
+/* Ion Textarea Fixes */
+ion-textarea {
+  --color: var(--color-text-dark) !important;
+  --placeholder-color: var(--color-muted) !important;
+  --background: var(--color-surface) !important;
+  
+  textarea {
+    color: var(--color-text-dark) !important;
+    
+    &::placeholder {
+      color: var(--color-muted) !important;
+      opacity: 0.7 !important;
+    }
+  }
+}
+
+/* Ion Searchbar Fixes */
+ion-searchbar {
+  --color: var(--color-text-dark) !important;
+  --placeholder-color: var(--color-muted) !important;
+  --background: var(--color-surface) !important;
+  --icon-color: var(--color-primary) !important;
+  --clear-button-color: var(--color-muted) !important;
+  
+  .searchbar-input {
+    color: var(--color-text-dark) !important;
+    
+    &::placeholder {
+      color: var(--color-muted) !important;
+      opacity: 0.7 !important;
+    }
+  }
+}
+
+/* Ion Datetime Fixes */
+ion-datetime {
+  --color: var(--color-text-dark) !important;
+  --placeholder-color: var(--color-muted) !important;
+}
+
+/* Ion Item with Input Fixes */
+ion-item {
+  --color: var(--color-text-dark) !important;
+  
+  ion-label {
+    color: var(--color-text-dark) !important;
+    
+    &[position="stacked"] {
+      color: var(--color-text-dark) !important;
+      font-weight: var(--font-weight-medium);
+    }
+  }
+}
+
+/* Ensure form fields are visible in all contexts */
+.form-section ion-item {
+  ion-input, ion-select, ion-textarea, ion-datetime {
+    --color: var(--color-text-dark) !important;
+    --placeholder-color: var(--color-muted) !important;
+  }
+}
+
+/* Dark mode completely removed from application */
+
+/**
+ * Barcode Scanner Styles
+ * -----------------------------------------------------
+ */
+body.scanner-active {
+  --background: transparent;
+  --ion-background-color: transparent;
+  
+  app-root, ion-app {
+    visibility: hidden;
   }
 }

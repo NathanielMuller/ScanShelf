@@ -112,27 +112,7 @@ export class LoginPage implements OnInit, OnDestroy {
   /**
    * Login como invitado con sesión limitada
    */
-  async onGuestLogin() {
-    const loading = await this.showLoading('Ingresando como invitado...');
-    
-    try {
-      const result = await this.authService.guestLogin();
-      
-      if (result.success) {
-        await this.showSuccessToast('¡Bienvenido, Invitado!');
-        this.router.navigate(['/tabs'], { 
-          state: { 
-            usuario: 'Invitado', 
-            guest: true 
-          } 
-        });
-      }
-    } catch (error) {
-      await this.showErrorAlert('Error al ingresar como invitado');
-    } finally {
-      loading.dismiss();
-    }
-  }
+
 
   /**
    * Verificar si el formulario tiene errores específicos

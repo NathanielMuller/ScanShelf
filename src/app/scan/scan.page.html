@@ -11,30 +11,77 @@
     </ion-toolbar>
   </ion-header>
 
-  <div class="development-container" @fadeIn>
+  <div class="scan-container" @fadeIn>
     
-    <!-- Main development message -->
-    <div class="development-hero">
+    <!-- Hero Section -->
+    <div class="scan-hero">
       <div class="scan-icon" @pulse>
         <ion-icon name="scan-outline"></ion-icon>
       </div>
-      <h1>Página en Desarrollo</h1>
+      <h1>Escanear Producto</h1>
       <p class="hero-subtitle">
-        Esta funcionalidad se encuentra en desarrollo. Próximamente se agregarán nuevas características.
+        Escanea el código de barras o QR para ver la información del producto
       </p>
     </div>
 
-    <!-- Status message -->
-    <div class="status-message">
-      <ion-chip color="warning" outline="true">
-        <ion-icon name="construct-outline"></ion-icon>
-        <ion-label>En desarrollo</ion-label>
-      </ion-chip>
-      <p>
-        Mientras tanto, puedes explorar las demás funciones de la aplicación.
-      </p>
+    <!-- Scan Button -->
+    <div class="scan-action">
+      <ion-button 
+        expand="block" 
+        size="large" 
+        (click)="startScan()" 
+        [disabled]="isScanning"
+        class="scan-button">
+        <ion-icon name="camera-outline" slot="start"></ion-icon>
+        {{ isScanning ? 'Escaneando...' : 'Iniciar Escaneo' }}
+      </ion-button>
+    </div>
+
+    <!-- Last Scanned Code -->
+    <div class="scanned-info" *ngIf="scannedCode && !isScanning">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-subtitle>Último código escaneado</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="code-display">
+            <ion-icon name="barcode-outline"></ion-icon>
+            <span>{{ scannedCode }}</span>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Instructions -->
+    <div class="instructions">
+      <h3>Instrucciones</h3>
+      <div class="instruction-item">
+        <ion-icon name="scan-outline" color="primary"></ion-icon>
+        <p>Toca el botón "Iniciar Escaneo"</p>
+      </div>
+      <div class="instruction-item">
+        <ion-icon name="camera-outline" color="primary"></ion-icon>
+        <p>Apunta la cámara al código de barras o QR</p>
+      </div>
+      <div class="instruction-item">
+        <ion-icon name="information-circle-outline" color="primary"></ion-icon>
+        <p>Verás automáticamente la información del producto</p>
+      </div>
     </div>
 
   </div>
 
 </ion-content>
+
+<!-- Scanner UI Overlay -->
+<div class="scanner-ui" *ngIf="isScanning">
+  <h2 class="scanner-title">Escanear Código</h2>
+  <div class="scanner-frame">
+    <div class="scanner-line"></div>
+  </div>
+  <p class="scanner-instructions">Coloca el código dentro del marco</p>
+  <ion-button fill="outline" color="light" (click)="stopScan()" class="scanner-cancel-btn">
+    <ion-icon name="close-outline" slot="start"></ion-icon>
+    Cancelar
+  </ion-button>
+</div>

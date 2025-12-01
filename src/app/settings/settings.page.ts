@@ -6,7 +6,6 @@ import { trigger, style, transition, animate } from '@angular/animations';
 
 export interface AppSettings {
   notifications: boolean;
-  darkMode: boolean;
   language: string;
   autoSync: boolean;
   biometrics: boolean;
@@ -42,7 +41,6 @@ export class SettingsPage implements OnInit {
   // App Settings (demo data)
   settings: AppSettings = {
     notifications: true,
-    darkMode: false,
     language: 'es',
     autoSync: true,
     biometrics: false
@@ -130,15 +128,7 @@ export class SettingsPage implements OnInit {
     // TODO: Configure push notifications
   }
 
-  /**
-   * Handle dark mode toggle
-   */
-  onDarkModeChange(event: any) {
-    this.settings.darkMode = event.detail.checked;
-    this.saveSettings();
-    // TODO: Apply dark mode theme
-    console.log('Dark mode:', this.settings.darkMode ? 'enabled' : 'disabled');
-  }
+
 
   /**
    * Handle language change
@@ -241,7 +231,6 @@ export class SettingsPage implements OnInit {
       // Reset settings to default
       this.settings = {
         notifications: true,
-        darkMode: false,
         language: 'es',
         autoSync: true,
         biometrics: false

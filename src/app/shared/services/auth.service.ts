@@ -117,28 +117,7 @@ export class AuthService {
     });
   }
 
-  /**
-   * Login como invitado con sesión limitada
-   * @returns Promise<{success: boolean}> - resultado del login guest
-   */
-  async guestLogin(): Promise<{success: boolean}> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const sessionId = this.generateSecureSessionId();
-        const guestUser: User = {
-          usuario: 'Invitado',
-          guest: true,
-          timestamp: Date.now(),
-          sessionId: sessionId,
-          lastActivity: Date.now()
-        };
-        
-        this.setCurrentUser(guestUser);
-        this.startSessionTimer();
-        resolve({ success: true });
-      }, 600);
-    });
-  }
+
 
   /**
    * Cerrar sesión de forma segura

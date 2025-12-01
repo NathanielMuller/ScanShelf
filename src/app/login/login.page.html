@@ -81,19 +81,6 @@
               <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
               {{ isLoading ? 'Iniciando...' : 'Ingresar' }}
             </ion-button>
-
-            <ion-button 
-              type="button"
-              fill="outline" 
-              expand="block" 
-              class="btn-secondary guest-btn"
-              [disabled]="isLoading"
-              (click)="onGuestLogin()"
-              aria-label="Entrar como invitado"
-            >
-              <ion-icon name="person-outline" slot="start"></ion-icon>
-              Entrar como Invitado
-            </ion-button>
           </div>
         </form>
       </ion-card-content>

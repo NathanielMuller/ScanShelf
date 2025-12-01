@@ -19,7 +19,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: '/login',
+    redirectTo: '/tabs',
     pathMatch: 'full'
   },
   {
@@ -29,7 +29,16 @@ const routes: Routes = [
   {
     path: '**',
     redirectTo: '/page-not-found'
-  }
+  },
+  // TEMPORALMENTE DESHABILITADO - problemas de compilación
+  // {
+  //   path: 'categories',
+  //   loadChildren: () => import('./categories/categories.module').then( m => m.CategoriesPageModule)
+  // },
+  // {
+  //   path: 'product-detail',
+  //   loadChildren: () => import('./product-detail/product-detail.module').then( m => m.ProductDetailPageModule)
+  // }
 ];
 
 @NgModule({

@@ -220,15 +220,7 @@
    Dark Mode Support
    ============================================ */
 
-@media (prefers-color-scheme: dark) {
-  .page-not-found-content {
-    --background: linear-gradient(135deg, var(--ion-color-dark), var(--ion-color-step-50));
-  }
-  
-  .help-card {
-    --background: var(--ion-color-step-100) !important;
-  }
-}
+/* Dark mode completely removed */
 
 /* ============================================
    Accessibility
