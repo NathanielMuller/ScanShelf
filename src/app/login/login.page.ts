@@ -362,22 +362,7 @@ export class LoginPage implements OnInit, OnDestroy {
    * Mostrar mensaje de error del auth guard
    */
   private async showGuardErrorMessage(errorMessage: string) {
-    const alert = await this.alertController.create({
-      header: 'Acceso Restringido',
-      message: `
-        <div style="text-align: left;">
-          <p><ion-icon name="lock-closed-outline"></ion-icon> <strong>${errorMessage}</strong></p>
-          <br>
-          <p style="color: var(--ion-color-medium); font-size: 0.9em;">
-            Por favor, inicia sesión con una cuenta registrada para acceder a esta funcionalidad.
-          </p>
-        </div>
-      `,
-      buttons: ['Entendido'],
-      cssClass: 'auth-guard-alert'
-    });
-    
-    await alert.present();
+    // Alert removido - usuario será redirigido al login automáticamente
   }
 
   /**

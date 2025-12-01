@@ -11,23 +11,28 @@ const routes: Routes = [
 
       {
         path: 'inventory',
-        loadChildren: () => import('../inventory/inventory.module').then(m => m.InventoryPageModule)
+        loadChildren: () => import('../inventory/inventory.module').then(m => m.InventoryPageModule),
+        canActivate: [authGuard]
       },
       {
         path: 'scan',
-        loadChildren: () => import('../scan/scan.module').then(m => m.ScanPageModule)
+        loadChildren: () => import('../scan/scan.module').then(m => m.ScanPageModule),
+        canActivate: [authGuard]
       },
       {
         path: 'movements',
-        loadChildren: () => import('../movements/movements.module').then(m => m.MovementsPageModule)
+        loadChildren: () => import('../movements/movements.module').then(m => m.MovementsPageModule),
+        canActivate: [authGuard]
       },
       {
         path: 'reports',
-        loadChildren: () => import('../reports/reports.module').then(m => m.ReportsPageModule)
+        loadChildren: () => import('../reports/reports.module').then(m => m.ReportsPageModule),
+        canActivate: [authGuard]
       },
       {
         path: 'settings',
-        loadChildren: () => import('../settings/settings.module').then(m => m.SettingsPageModule)
+        loadChildren: () => import('../settings/settings.module').then(m => m.SettingsPageModule),
+        canActivate: [authGuard]
       },
       {
         path: '',

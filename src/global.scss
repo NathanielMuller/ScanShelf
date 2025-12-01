@@ -312,7 +312,16 @@ body.scanner-active {
   --background: transparent;
   --ion-background-color: transparent;
   
-  app-root, ion-app {
-    visibility: hidden;
+  app-root, ion-app, ion-tab-bar, ion-header, ion-footer {
+    visibility: hidden !important;
+  }
+  
+  // Mantener visible solo el overlay del scanner
+  .scanner-ui {
+    visibility: visible !important;
+    
+    * {
+      visibility: visible !important;
+    }
   }
 }

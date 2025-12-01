@@ -10,97 +10,131 @@
 </ion-header>
 
 <ion-content class="product-detail-content">
-  <!-- Imagen del producto -->
-  <div class="product-image-container" *ngIf="product.image">
-    <img [src]="product.image" [alt]="product.name" class="product-image">
-  </div>
   
-  <div class="product-image-placeholder" *ngIf="!product.image">
-    <ion-icon name="image-outline"></ion-icon>
-    <p>Sin imagen</p>
-  </div>
-
-  <!-- Información principal -->
-  <div class="product-main-info">
-    <div class="product-header">
-      <h1 class="product-title">{{ product.name }}</h1>
-      <ion-badge [color]="getStockColor()" class="stock-badge">
-        {{ getStockStatus() }}
-      </ion-badge>
+  <!-- Vista cuando el producto existe -->
+  <ng-container *ngIf="product">
+    <!-- Imagen del producto -->
+    <div class="product-image-container" *ngIf="product.image">
+      <img [src]="product.image" [alt]="product.name" class="product-image">
     </div>
-
-    <div class="product-meta">
-      <span class="product-category">
-        <ion-icon name="pricetags-outline"></ion-icon>
-        {{ product.category }}
-      </span>
-      <span class="product-brand" *ngIf="product.brand">
-        <ion-icon name="business-outline"></ion-icon>
-        {{ product.brand }}
-      </span>
-    </div>
-  </div>
-
-  <!-- Detalles en cards -->
-  <div class="details-container">
     
-    <!-- Stock y Precio -->
-    <div class="detail-card">
-      <h3 class="card-title">
-        <ion-icon name="cube-outline"></ion-icon>
-        Stock y Precio
-      </h3>
-      
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="info-label">Stock actual</span>
-          <span class="info-value highlight" [class.danger]="product.stock === 0" [class.warning]="product.stock <= product.minStock">
-            {{ product.stock }} unidades
-          </span>
-        </div>
-        
-        <div class="info-item">
-          <span class="info-label">Stock mínimo</span>
-          <span class="info-value">{{ product.minStock }} unidades</span>
-        </div>
-        
-        <div class="info-item full-width">
-          <span class="info-label">Precio</span>
-          <span class="info-value price">${{ product.price | number:'1.2-2' }}</span>
-        </div>
+    <div class="product-image-placeholder" *ngIf="!product.image">
+      <ion-icon name="image-outline"></ion-icon>
+      <p>Sin imagen</p>
+    </div>
+
+    <!-- Información principal -->
+    <div class="product-main-info">
+      <div class="product-header">
+        <h1 class="product-title">{{ product.name }}</h1>
+        <ion-badge [color]="getStockColor()" class="stock-badge">
+          {{ getStockStatus() }}
+        </ion-badge>
+      </div>
+
+      <div class="product-meta">
+        <span class="product-category">
+          <ion-icon name="pricetags-outline"></ion-icon>
+          {{ product.category }}
+        </span>
+        <span class="product-brand" *ngIf="product.brand">
+          <ion-icon name="business-outline"></ion-icon>
+          {{ product.brand }}
+        </span>
       </div>
     </div>
 
-    <!-- Códigos -->
-    <div class="detail-card">
-      <h3 class="card-title">
-        <ion-icon name="barcode-outline"></ion-icon>
-        Códigos
-      </h3>
+    <!-- Detalles en cards -->
+    <div class="details-container">
       
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="info-label">SKU</span>
-          <span class="info-value code">{{ product.sku }}</span>
-        </div>
+      <!-- Stock y Precio -->
+      <div class="detail-card">
+        <h3 class="card-title">
+          <ion-icon name="cube-outline"></ion-icon>
+          Stock y Precio
+        </h3>
         
-        <div class="info-item">
-          <span class="info-label">Código de barras</span>
-          <span class="info-value code">{{ product.barcode }}</span>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Stock actual</span>
+            <span class="info-value highlight" [class.danger]="product.stock === 0" [class.warning]="product.stock <= product.minStock">
+              {{ product.stock }} unidades
+            </span>
+          </div>
+          
+          <div class="info-item">
+            <span class="info-label">Stock mínimo</span>
+            <span class="info-value">{{ product.minStock }} unidades</span>
+          </div>
+          
+          <div class="info-item full-width">
+            <span class="info-label">Precio</span>
+            <span class="info-value price">${{ product.price | number:'1.2-2' }}</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Descripción -->
-    <div class="detail-card" *ngIf="product.description">
-      <h3 class="card-title">
-        <ion-icon name="document-text-outline"></ion-icon>
-        Descripción
-      </h3>
-      
-      <p class="product-description">{{ product.description }}</p>
-    </div>
+      <!-- Códigos -->
+      <div class="detail-card">
+        <h3 class="card-title">
+          <ion-icon name="barcode-outline"></ion-icon>
+          Códigos
+        </h3>
+        
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">SKU</span>
+            <span class="info-value code">{{ product.sku }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="info-label">Código de barras</span>
+            <span class="info-value code">{{ product.barcode }}</span>
+          </div>
+        </div>
+      </div>
 
+      <!-- Descripción -->
+      <div class="detail-card" *ngIf="product.description">
+        <h3 class="card-title">
+          <ion-icon name="document-text-outline"></ion-icon>
+          Descripción
+        </h3>
+        
+        <p class="product-description">{{ product.description }}</p>
+      </div>
+
+    </div>
+  </ng-container>
+
+  <!-- Producto no encontrado -->
+  <div class="product-not-found" *ngIf="!product">
+    <div class="not-found-icon">
+      <ion-icon name="search-outline" color="medium"></ion-icon>
+    </div>
+    <h2>Producto No Encontrado</h2>
+    <p>El código escaneado no está registrado en el inventario:</p>
+    <div class="scanned-code-display">
+      <ion-icon name="barcode-outline"></ion-icon>
+      <span>{{ scannedCode }}</span>
+    </div>
+    <ion-button expand="block" color="primary" size="large" (click)="createNewProduct()" class="create-product-btn">
+      <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+      Crear Producto Nuevo
+    </ion-button>
+    <ion-button expand="block" fill="outline" (click)="dismiss()" class="cancel-btn">
+      Volver
+    </ion-button>
   </div>
 
 </ion-content>
+
+<!-- Botón de acción flotante para añadir stock -->
+<ion-footer *ngIf="product">
+  <ion-toolbar>
+    <ion-button expand="block" color="success" size="large" (click)="addStock()">
+      <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+      Añadir Stock
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

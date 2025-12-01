@@ -4,7 +4,9 @@ import { Platform } from '@ionic/angular';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { InventoryCodeService } from './inventory-code.service';
 
-// ===== INTERFACES =====
+// ===== INTERFACES DE DATOS =====
+// Definiciones de estructuras de datos para la base de datos SQLite
+
 export interface Product {
   id?: number;
   name: string;
@@ -78,11 +80,12 @@ export interface PaginatedResult<T> {
   totalPages: number;
 }
 
-// ===== CACHE INTERFACE =====
+// ===== SISTEMA DE CACHÉ =====
+// Estructura para almacenar datos en memoria temporalmente
 interface CacheEntry<T> {
   data: T;
-  timestamp: number;
-  ttl: number; // time to live in milliseconds
+  timestamp: number; // Marca de tiempo de creación
+  ttl: number; // Tiempo de vida en milisegundos
 }
 
 @Injectable({
@@ -93,11 +96,11 @@ export class DatabaseService {
   private isReady: boolean = false;
   private initializationPromise?: Promise<void>;
   
-  // Cache system
+  // Sistema de caché en memoria para optimizar consultas
   private cache = new Map<string, CacheEntry<any>>();
-  private readonly DEFAULT_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  private readonly DEFAULT_CACHE_TTL = 5 * 60 * 1000; // Tiempo de vida del caché: 5 minutos
   
-  // Observables for real-time updates
+  // Observables para actualizaciones en tiempo real (patrón reactivo)
   private productsSubject = new BehaviorSubject<Product[]>([]);
   private categoriesSubject = new BehaviorSubject<Category[]>([]);
   private movementsSubject = new BehaviorSubject<Movement[]>([]);
@@ -111,11 +114,13 @@ export class DatabaseService {
     private platform: Platform,
     private inventoryCodeService: InventoryCodeService
   ) {
-    // No inicializar automáticamente - usar método público
+    // La base de datos se inicializa llamando a initializeDatabase()
   }
 
   /**
-   * Inicializar la base de datos SQLite (método público)
+   * Inicializar la base de datos SQLite
+   * Este método debe llamarse una vez antes de usar cualquier otra funcionalidad
+   * Si ya se está inicializando, retorna la promesa existente (evita inicializaciones múltiples)
    */
   async initializeDatabase(): Promise<void> {
     if (this.initializationPromise) {
@@ -127,7 +132,8 @@ export class DatabaseService {
   }
 
   /**
-   * Realizar la inicialización real de la base de datos
+   * Proceso interno de inicialización de la base de datos
+   * Crea tablas, índices y carga datos iniciales
    */
   private async performInitialization(): Promise<void> {
     try {
@@ -1952,7 +1958,8 @@ export class DatabaseService {
   }
 
   /**
-   * Cargar productos de ejemplo (método público mantenido para compatibilidad)
+   * Cargar productos de ejemplo en la base de datos
+   * Útil para pruebas y demostraciones
    */
   async loadSampleProducts(): Promise<void> {
     if (!this.isReady) {
@@ -1963,12 +1970,13 @@ export class DatabaseService {
       await this.forceLoadSampleData();
       await this.loadInitialCacheData();
     } catch (error) {
-      console.error('❌ Error en loadSampleProducts:', error);
+      console.error('❌ Error cargando productos de ejemplo:', error);
     }
   }
 
   /**
-   * Obtener información del estado de la base de datos
+   * Obtener información sobre el estado actual de la base de datos
+   * Incluye: estado de preparación, versión, número de tablas y tamaño del caché
    */
   async getDatabaseInfo(): Promise<{
     isReady: boolean;
@@ -2002,14 +2010,17 @@ export class DatabaseService {
   }
 
   /**
-   * Obtener producto por SKU
+   * Buscar un producto por su código SKU
+   * Utiliza caché para optimizar búsquedas repetidas
+   * @param sku Código SKU del producto a buscar
+   * @returns Producto encontrado o null si no existe
    */
   async getProductBySKU(sku: string): Promise<Product | null> {
     if (!sku?.trim()) {
       return null;
     }
 
-    // Verificar caché
+    // Primero intentar obtener del caché
     const cacheKey = `sku_${sku}`;
     const cached = this.getCache<Product>(cacheKey);
     if (cached) {
@@ -2023,19 +2034,20 @@ export class DatabaseService {
       
       if (result.rows.length > 0) {
         const product = result.rows.item(0);
-        this.setCache(cacheKey, product, 10 * 60 * 1000); // Cache por 10 minutos
+        this.setCache(cacheKey, product, 10 * 60 * 1000); // Guardar en caché por 10 minutos
         return product;
       }
       
       return null;
     } catch (error) {
-      console.error('Error al buscar producto por SKU:', error);
+      console.error('❌ Error buscando producto por SKU:', error);
       throw error;
     }
   }
 
   /**
-   * Obtener todos los SKUs existentes
+   * Obtener lista de todos los SKUs registrados en la base de datos
+   * Usado para evitar duplicados al generar nuevos SKUs
    */
   async getAllSKUs(): Promise<string[]> {
     const cached = this.getCache<string[]>('all_skus');

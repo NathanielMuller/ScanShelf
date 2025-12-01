@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ModalController, AlertController } from '@ionic/angular';
+import { ModalController, AlertController, ToastController } from '@ionic/angular';
 
 interface Product {
   id?: number;
@@ -27,7 +27,8 @@ export class ProductDetailModalComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private toastController: ToastController
   ) {}
 
   ngOnInit() {
@@ -92,5 +93,99 @@ export class ProductDetailModalComponent implements OnInit {
     } else {
       return 'success';
     }
+  }
+
+  /**
+   * Mostrar diálogo para añadir stock al producto
+   */
+  async addStock() {
+    const alert = await this.alertController.create({
+      header: 'Añadir Stock',
+      message: `¿Cuántas unidades deseas agregar a "${this.product.name}"?`,
+      inputs: [
+        {
+          name: 'quantity',
+          type: 'number',
+          placeholder: 'Cantidad',
+          min: 1,
+          value: 1
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+        {
+          text: 'Añadir',
+          handler: (data) => {
+            const quantity = parseInt(data.quantity);
+            if (quantity && quantity > 0) {
+              this.updateStock(quantity);
+              return true;
+            } else {
+              this.showToast('Por favor ingresa una cantidad válida', 'warning');
+              return false;
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  /**
+   * Actualizar el stock del producto en la base de datos
+   */
+  async updateStock(quantity: number) {
+    try {
+      if (!(window as any).sqlitePlugin) {
+        throw new Error('Plugin SQLite no disponible');
+      }
+
+      const db = (window as any).sqlitePlugin.openDatabase({
+        name: 'scanshelf.db',
+        location: 'default'
+      });
+
+      const newStock = this.product.stock + quantity;
+
+      db.transaction((tx: any) => {
+        tx.executeSql(
+          'UPDATE products SET stock = ? WHERE id = ?',
+          [newStock, this.product.id],
+          () => {
+            this.product.stock = newStock;
+            this.showToast(`Se agregaron ${quantity} unidades. Stock actual: ${newStock}`, 'success');
+            // Notificar al componente padre que se actualizó el stock
+            this.modalController.dismiss({
+              action: 'update',
+              product: this.product
+            });
+          },
+          (error: any) => {
+            console.error('Error actualizando stock:', error);
+            this.showToast('Error al actualizar el stock', 'danger');
+          }
+        );
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      this.showToast('Error al actualizar el stock', 'danger');
+    }
+  }
+
+  /**
+   * Mostrar mensaje toast
+   */
+  async showToast(message: string, color: string = 'dark') {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      position: 'bottom',
+      color
+    });
+    toast.present();
   }
 }

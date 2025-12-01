@@ -122,10 +122,17 @@ export class SettingsPage implements OnInit {
   /**
    * Handle notification toggle
    */
-  onNotificationsChange(event: any) {
+  async onNotificationsChange(event: any) {
     this.settings.notifications = event.detail.checked;
     this.saveSettings();
-    // TODO: Configure push notifications
+    
+    const toast = await this.toastController.create({
+      message: 'Funcionalidad en desarrollo',
+      duration: 2000,
+      position: 'top',
+      color: 'tertiary'
+    });
+    await toast.present();
   }
 
 
@@ -133,29 +140,49 @@ export class SettingsPage implements OnInit {
   /**
    * Handle language change
    */
-  onLanguageChange(event: any) {
+  async onLanguageChange(event: any) {
     this.settings.language = event.detail.value;
     this.saveSettings();
-    // TODO: Change app language
-    console.log('Language changed to:', this.settings.language);
+    
+    const toast = await this.toastController.create({
+      message: 'Funcionalidad en desarrollo',
+      duration: 2000,
+      position: 'top',
+      color: 'tertiary'
+    });
+    await toast.present();
   }
 
   /**
    * Handle auto sync toggle
    */
-  onAutoSyncChange(event: any) {
+  async onAutoSyncChange(event: any) {
     this.settings.autoSync = event.detail.checked;
     this.saveSettings();
-    // TODO: Configure auto sync
+    
+    const toast = await this.toastController.create({
+      message: 'Funcionalidad en desarrollo',
+      duration: 2000,
+      position: 'top',
+      color: 'tertiary'
+    });
+    await toast.present();
   }
 
   /**
    * Handle biometrics toggle
    */
-  onBiometricsChange(event: any) {
+  async onBiometricsChange(event: any) {
     this.settings.biometrics = event.detail.checked;
     this.saveSettings();
-    // TODO: Configure biometric authentication
+    
+    const toast = await this.toastController.create({
+      message: 'Funcionalidad en desarrollo',
+      duration: 2000,
+      position: 'top',
+      color: 'tertiary'
+    });
+    await toast.present();
   }
 
   /**
@@ -172,24 +199,13 @@ export class SettingsPage implements OnInit {
       return;
     }
 
-    const alert = await this.alertController.create({
-      header: 'Editar Perfil',
-      message: 'Función en desarrollo. Próximamente podrás editar tu información personal.',
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel'
-        },
-        {
-          text: 'OK',
-          handler: () => {
-            // TODO: Navigate to profile edit page
-            console.log('Navigate to profile edit');
-          }
-        }
-      ]
+    const toast = await this.toastController.create({
+      message: 'Funcionalidad en desarrollo',
+      duration: 2000,
+      position: 'top',
+      color: 'tertiary'
     });
-    await alert.present();
+    await toast.present();
   }
 
   /**
@@ -266,12 +282,13 @@ export class SettingsPage implements OnInit {
    * Contact support
    */
   async contactSupport() {
-    const alert = await this.alertController.create({
-      header: 'Soporte Técnico',
-      message: 'Función en desarrollo. Próximamente podrás contactar al soporte técnico directamente desde la aplicación.',
-      buttons: ['Entendido']
+    const toast = await this.toastController.create({
+      message: 'Funcionalidad en desarrollo',
+      duration: 2000,
+      position: 'top',
+      color: 'tertiary'
     });
-    await alert.present();
+    await toast.present();
   }
 
   /**

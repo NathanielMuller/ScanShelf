@@ -80,8 +80,13 @@
     <div class="scanner-line"></div>
   </div>
   <p class="scanner-instructions">Coloca el código dentro del marco</p>
-  <ion-button fill="outline" color="light" (click)="stopScan()" class="scanner-cancel-btn">
-    <ion-icon name="close-outline" slot="start"></ion-icon>
-    Cancelar
+  <ion-button 
+    fill="solid" 
+    color="danger" 
+    (click)="stopScan()" 
+    class="scanner-cancel-btn"
+    size="large">
+    <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+    Cancelar Escaneo
   </ion-button>
 </div>

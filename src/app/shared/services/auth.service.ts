@@ -20,20 +20,25 @@ export interface LoginAttempt {
   providedIn: 'root'
 })
 export class AuthService {
+  // Claves de almacenamiento local
   private readonly STORAGE_KEY = 'scanshelf_user';
   private readonly LOGIN_ATTEMPTS_KEY = 'scanshelf_login_attempts';
-  private readonly SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutos
-  private readonly MAX_LOGIN_ATTEMPTS = 3;
-  private readonly LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutos
   
+  // Configuración de seguridad
+  private readonly SESSION_TIMEOUT = 30 * 60 * 1000; // Tiempo de expiración de sesión: 30 minutos
+  private readonly MAX_LOGIN_ATTEMPTS = 3; // Máximo de intentos de login fallidos
+  private readonly LOCKOUT_DURATION = 15 * 60 * 1000; // Duración del bloqueo: 15 minutos
+  
+  // Observable para estado del usuario actual
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
   
+  // Temporizadores para control de sesión
   private sessionTimer?: any;
   private activityTimer?: any;
 
   constructor() {
-    // Cargar usuario desde localStorage al inicializar
+    // Inicializar servicio: cargar sesión guardada y configurar monitoreo
     this.loadUserFromStorage();
     this.setupActivityMonitoring();
     this.validateActiveSession();
@@ -198,11 +203,12 @@ export class AuthService {
   }
 
   // ============================================
-  // MÉTODOS DE SEGURIDAD ADICIONALES
+  // MÉTODOS DE SEGURIDAD Y VALIDACIÓN
   // ============================================
 
   /**
-   * Validar si una sesión es válida
+   * Verificar si una sesión es válida
+   * Valida tanto el tiempo total de sesión como el tiempo de inactividad
    */
   private isSessionValid(user: User): boolean {
     if (!user.timestamp || !user.sessionId) return false;
@@ -216,7 +222,8 @@ export class AuthService {
   }
 
   /**
-   * Validar si un usuario está bloqueado por intentos fallidos
+   * Verificar si un usuario está temporalmente bloqueado
+   * El bloqueo ocurre tras 3 intentos fallidos de login
    */
   private isUserLocked(username: string): boolean {
     const attempts = this.getLoginAttempts(username);
@@ -340,10 +347,11 @@ export class AuthService {
   }
 
   /**
-   * Verificar credenciales (método demo)
+   * Verificar credenciales del usuario (versión de demostración)
+   * NOTA: En producción real, debería verificar contra hash en base de datos backend
    */
   private verifyCredentials(username: string, password: string): boolean {
-    // En producción, esto sería una verificación contra hash en base de datos
+    // Por ahora solo valida el formato correcto
     return this.validateCredentials(username, password);
   }
 
@@ -440,8 +448,8 @@ export class AuthService {
   }
 
   /**
-   * Método público para verificar si la sesión actual es válida
-   * Usado por el auth guard
+   * Verificar si la sesión actual es válida
+   * Este método es usado por el guard de autenticación de las rutas
    */
   public isCurrentSessionValid(): boolean {
     const user = this.getCurrentUser();
@@ -450,7 +458,7 @@ export class AuthService {
   }
 
   /**
-   * Verificar si el usuario actual es invitado
+   * Verificar si el usuario actual tiene permisos de invitado
    */
   public isGuestUser(): boolean {
     const user = this.getCurrentUser();
@@ -458,7 +466,8 @@ export class AuthService {
   }
 
   /**
-   * Obtener información de seguridad de la sesión
+   * Obtener estadísticas de seguridad de la sesión actual
+   * Incluye: validez, tiempo restante e intentos de login del día
    */
   public getSecurityInfo(): {isSecure: boolean, timeRemaining: number, attemptsToday: number} {
     const user = this.getCurrentUser();

@@ -210,7 +210,7 @@ ion-header ion-toolbar {
   }
 }
 
-/* Scanner styles */
+/* Scanner styles - Idénticos a scan.page.scss */
 :host {
   .scanner-ui {
     position: fixed;
@@ -218,19 +218,30 @@ ion-header ion-toolbar {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.9);
-    z-index: 10000;
+    background: transparent;
+    z-index: 999999 !important;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    padding: 20px;
+    pointer-events: none;
+
+    * {
+      pointer-events: auto;
+    }
 
     .scanner-title {
       color: white;
-      font-size: 20px;
-      font-weight: 600;
+      font-size: 24px;
+      font-weight: 700;
+      margin-top: 40px;
       margin-bottom: 20px;
       text-align: center;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.7);
+      padding: 12px 24px;
+      border-radius: 12px;
     }
 
     .scanner-frame {
@@ -240,6 +251,8 @@ ion-header ion-toolbar {
       border: 3px solid var(--ion-color-primary);
       border-radius: 16px;
       position: relative;
+      overflow: hidden;
+      pointer-events: none;
 
       &::before,
       &::after {
@@ -263,17 +276,56 @@ ion-header ion-toolbar {
         border-left: none;
         border-top: none;
       }
+
+      .scanner-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--ion-color-primary);
+        box-shadow: 0 0 10px var(--ion-color-primary);
+        animation: scanLine 2s linear infinite;
+      }
     }
 
     .scanner-instructions {
       color: white;
       text-align: center;
-      margin-top: 30px;
+      margin-top: 20px;
+      margin-bottom: 20px;
       font-size: 16px;
+      font-weight: 500;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.7);
+      padding: 12px 24px;
+      border-radius: 12px;
     }
 
     .scanner-cancel-btn {
-      margin-top: 30px;
+      margin-bottom: 40px;
+      --border-width: 2px;
+      font-weight: 600;
+      min-height: 48px;
+      min-width: 160px;
+      font-size: 16px;
+      --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      z-index: 999999 !important;
+      pointer-events: auto !important;
     }
+  }
+}
+
+@keyframes scanLine {
+  0% { 
+    top: 0;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% { 
+    top: calc(100% - 3px);
+    opacity: 0;
   }
 }

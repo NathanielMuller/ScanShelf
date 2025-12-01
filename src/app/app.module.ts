@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouteReuseStrategy } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
 
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { SQLite } from '@awesome-cordova-plugins/sqlite/ngx';
@@ -14,6 +15,7 @@ import { AppRoutingModule } from './app-routing.module';
   imports: [
     BrowserModule, 
     BrowserAnimationsModule,
+    HttpClientModule,
     IonicModule.forRoot(), 
     AppRoutingModule
   ],

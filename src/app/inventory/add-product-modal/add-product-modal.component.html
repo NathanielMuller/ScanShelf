@@ -1,5 +1,10 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title>
       <ion-icon name="add-outline" slot="start"></ion-icon>
       Nuevo Producto
@@ -175,11 +180,18 @@
 
 <!-- Scanner UI Overlay -->
 <div class="scanner-ui" *ngIf="isScanning">
-  <h2 class="scanner-title">Escanear Código de Barras</h2>
-  <div class="scanner-frame"></div>
+  <h2 class="scanner-title">Escanear Código</h2>
+  <div class="scanner-frame">
+    <div class="scanner-line"></div>
+  </div>
   <p class="scanner-instructions">Coloca el código dentro del marco</p>
-  <ion-button fill="outline" color="light" (click)="stopScan()" class="scanner-cancel-btn">
-    <ion-icon name="close-outline" slot="start"></ion-icon>
-    Cancelar
+  <ion-button 
+    fill="solid" 
+    color="danger" 
+    (click)="stopScan()" 
+    class="scanner-cancel-btn"
+    size="large">
+    <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+    Cancelar Escaneo
   </ion-button>
 </div>

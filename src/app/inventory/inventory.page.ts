@@ -1,6 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalController, ToastController, AlertController } from '@ionic/angular';
+import { Router } from '@angular/router';
 import { AddProductModalComponent } from './add-product-modal/add-product-modal.component';
 import { ProductDetailModalComponent } from './product-detail-modal/product-detail-modal.component';
 import { DatabaseService } from '../shared/services/database.service';
@@ -27,7 +28,7 @@ interface Product {
   styleUrls: ['./inventory.page.scss'],
   standalone: false
 })
-export class InventoryPage implements OnInit, OnDestroy {
+export class InventoryPage implements OnInit {
 
   productForm!: FormGroup;
   products: Product[] = [];
@@ -39,10 +40,6 @@ export class InventoryPage implements OnInit, OnDestroy {
   // Filtros
   searchTerm: string = '';
   selectedCategory: string = 'all';
-  
-  // Array para mensajes de diagnóstico
-  diagnosticMessages: Array<{type: 'error' | 'success' | 'info', text: string}> = [];
-  showDiagnostics: boolean = true;
 
 
   constructor(
@@ -51,7 +48,8 @@ export class InventoryPage implements OnInit, OnDestroy {
     private inventoryCodeService: InventoryCodeService,
     private toastController: ToastController,
     private modalController: ModalController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private router: Router
   ) {
     this.createProductForm();
   }
@@ -62,14 +60,22 @@ export class InventoryPage implements OnInit, OnDestroy {
     
     // Cargar productos automáticamente
     await this.loadProductsDirect();
-    
-    // Iniciar auto-actualización cada 30 segundos
-    this.initAutoRefresh();
   }
 
-  ngOnDestroy() {
-    // Limpiar el intervalo cuando se destruya el componente
-    this.stopAutoRefresh();
+  /**
+   * Se ejecuta cada vez que la página se va a mostrar
+   * Verifica si se viene del scanner con un código de barras
+   */
+  ionViewWillEnter() {
+    const navigation = this.router.getCurrentNavigation();
+    const state = navigation?.extras?.state || (history.state || {});
+    
+    // Si hay un código de barras en el estado, abrir modal de creación
+    if (state['barcode']) {
+      setTimeout(() => {
+        this.openAddProductModal(state['barcode']);
+      }, 300);
+    }
   }
 
   createProductForm() {
@@ -190,241 +196,19 @@ export class InventoryPage implements OnInit, OnDestroy {
     }
   }
 
-  // Método de diagnóstico para verificar la base de datos
-  async testDatabaseConnection() {
-    this.diagnosticMessages = []; // Limpiar mensajes previos
-    this.addDiagnosticMessage('info', '🔍 Iniciando diagnóstico SQLite...');
-    
-    try {
-      // Paso 1: Verificar si el servicio existe
-      this.addDiagnosticMessage('info', '1. Verificando servicio de base de datos...');
-      if (!this.databaseService) {
-        this.addDiagnosticMessage('error', '❌ Servicio de base de datos no disponible');
-        return;
-      }
-      this.addDiagnosticMessage('success', '✅ Servicio disponible');
-      
-      // Paso 2: Verificar con timeout
-      this.addDiagnosticMessage('info', '2. Verificando base de datos (con timeout)...');
-      
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Timeout: Base de datos no responde en 10 segundos')), 10000);
-      });
-      
-      const dbReadyPromise = this.databaseService.isDatabaseReady();
-      
-      const isReady = await Promise.race([dbReadyPromise, timeoutPromise]) as boolean;
-      
-      if (isReady) {
-        this.addDiagnosticMessage('success', '✅ Base de datos respondió y está lista');
-        
-        // Paso 3: Probar operación simple
-        this.addDiagnosticMessage('info', '3. Probando operación básica...');
-        try {
-          const dbInfo = await Promise.race([
-            this.databaseService.getDatabaseInfo(),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout en getDatabaseInfo')), 5000))
-          ]) as any;
-          this.addDiagnosticMessage('success', `📊 Info obtenida: ${dbInfo.tableCount} tablas`);
-        } catch (infoError: any) {
-          this.addDiagnosticMessage('error', `❌ Error en info: ${infoError.message}`);
-        }
-        
-        // Paso 4: Probar consulta de productos
-        this.addDiagnosticMessage('info', '4. Probando consulta productos...');
-        try {
-          const products = await Promise.race([
-            this.databaseService.getProducts(),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout en getProducts')), 5000))
-          ]) as any;
-          this.addDiagnosticMessage('success', `📦 ${products.length} productos encontrados`);
-        } catch (productsError: any) {
-          this.addDiagnosticMessage('error', `❌ Error en productos: ${productsError.message}`);
-        }
-        
-        this.addDiagnosticMessage('success', '🎉 Diagnóstico completado');
-        this.showToast('Diagnóstico completado - ver mensajes', 'success');
-        
-      } else {
-        this.addDiagnosticMessage('error', '❌ Base de datos NO está lista');
-        this.showToast('Base de datos no lista', 'danger');
-      }
-      
-    } catch (error: any) {
-      console.error('❌ ERROR en diagnóstico:', error);
-      this.addDiagnosticMessage('error', `❌ Error: ${error.message || 'Error desconocido'}`);
-      
-      if (error.message?.includes('Timeout')) {
-        this.addDiagnosticMessage('error', '⏰ La base de datos no responde - posible problema de inicialización');
-      }
-      
-      if (error.message?.includes('executesql')) {
-        this.addDiagnosticMessage('error', '💡 SQLite no disponible en navegador web');
-        this.addDiagnosticMessage('info', '📱 Necesitas probar en dispositivo móvil');
-      }
-      
-      this.showToast(`Error: ${error.message}`, 'danger');
-    }
-  }
-  
-  // Método auxiliar para agregar mensajes de diagnóstico
-  private addDiagnosticMessage(type: 'error' | 'success' | 'info', text: string) {
-    // Solo registrar en consola, no mostrar en UI
-    console.log(text);
-  }
-  
 
-  // Método alternativo para inicializar SQLite de forma más simple
-  async initializeSimpleDatabase() {
-    try {
-      // Verificar si el plugin SQLite está disponible
-      if (!(window as any).sqlitePlugin) {
-        return false;
-      }
-      
-      // Crear base de datos directamente con el plugin
-      const db = (window as any).sqlitePlugin.openDatabase({
-        name: 'scanshelf.db',
-        location: 'default'
-      });
-      
-      if (!db) {
-        return false;
-      }
-      
-      // Crear tabla simple con todas las columnas necesarias
-      await new Promise((resolve, reject) => {
-        db.executeSql(`
-          CREATE TABLE IF NOT EXISTS products (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            sku TEXT NOT NULL,
-            barcode TEXT NOT NULL,
-            category TEXT NOT NULL,
-            stock INTEGER DEFAULT 0,
-            minStock INTEGER DEFAULT 0,
-            price REAL DEFAULT 0,
-            description TEXT,
-            brand TEXT,
-            status TEXT DEFAULT 'active',
-            createdAt TEXT DEFAULT CURRENT_TIMESTAMP
-          )
-        `, [], resolve, reject);
-      });
-      
-      // Probar inserción simple
-      await new Promise((resolve, reject) => {
-        db.executeSql(`
-          INSERT OR IGNORE INTO products (name, sku, barcode, category, stock, price, description)
-          VALUES ('Producto Test', 'TEST001', '1234567890', 'Test', 10, 9.99, 'Producto de prueba')
-        `, [], resolve, reject);
-      });
-      
-      // Probar consulta
-      const result = await new Promise((resolve, reject) => {
-        db.executeSql('SELECT COUNT(*) as count FROM products', [], resolve, reject);
-      });
-      
-      return true;
-      
-    } catch (error: any) {
-      console.error('Error inicializando SQLite:', error);
-      return false;
-    }
-  }
 
-  // Método para guardar producto directamente con SQLite nativo
-  async saveProductDirect() {
-    if (!this.productForm.valid) {
-      this.showToast('Formulario inválido', 'warning');
-      return;
-    }
-    
-    this.isCreatingProduct = true;
-    
-    try {
-      const db = (window as any).sqlitePlugin.openDatabase({
-        name: 'scanshelf.db',
-        location: 'default'
-      });
-      
-      const formValue = this.productForm.value;
-      
-      // Generar SKU con el nuevo formato
-      const existingSKUs = await this.getExistingSKUsDirect(db);
-      const sku = this.inventoryCodeService.generateCustomSKU(
-        formValue.category,
-        formValue.brand || 'Generic',
-        existingSKUs
-      );
-      const barcode = this.inventoryCodeService.generateAlternativeBarcode([]);
-      
-      console.log('🆔 SKU generado (direct):', sku);
-      console.log('🏷️ Código de barras generado (direct):', barcode);
-      console.log('📝 Categoría (direct):', formValue.category);
-      console.log('🏢 Marca (direct):', formValue.brand || 'Generic');
-      
-      await new Promise((resolve, reject) => {
-        db.executeSql(`
-          INSERT INTO products (name, sku, barcode, category, stock, minStock, price, description, brand, status, createdAt)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [
-          formValue.name,
-          sku,
-          barcode,
-          formValue.category,
-          parseInt(formValue.stock) || 0,
-          parseInt(formValue.minStock) || 1,
-          parseFloat(formValue.price) || 0,
-          formValue.description || '',
-          formValue.brand || '',
-          'active',
-          new Date().toISOString()
-        ], resolve, reject);
-      });
-      
-      this.showToast('Producto guardado exitosamente', 'success');
-      this.productForm.reset();
-      
-      // Recargar productos después de guardar
-      await this.loadProductsDirect();
-      
-    } catch (error: any) {
-      console.error('Error guardando producto:', error);
-      this.showToast('Error al guardar producto', 'danger');
-    } finally {
-      this.isCreatingProduct = false;
-    }
-  }
 
-  // Método auxiliar para obtener SKUs existentes desde SQLite directo
-  private async getExistingSKUsDirect(db: any): Promise<string[]> {
-    try {
-      const result = await new Promise((resolve, reject) => {
-        db.executeSql('SELECT sku FROM products', [], resolve, reject);
-      });
-      
-      const skus: string[] = [];
-      const resultSet = result as any;
-      
-      for (let i = 0; i < resultSet.rows.length; i++) {
-        const row = resultSet.rows.item(i);
-        skus.push(row.sku);
-      }
-      
-      return skus;
-    } catch (error) {
-      console.error('Error obteniendo SKUs existentes:', error);
-      return [];
-    }
-  }
 
-  // Método alternativo para cargar productos directamente desde SQLite nativo
+  /**
+   * Cargar productos directamente desde SQLite nativo
+   * Este método se usa porque es más rápido y confiable que DatabaseService
+   */
   async loadProductsDirect() {
     this.isLoading = true;
     
     try {
-      // Verificar si sqlitePlugin está disponible
+      // Verificar disponibilidad del plugin SQLite
       if (!(window as any).sqlitePlugin) {
         this.products = [];
         this.filteredProducts = [];
@@ -432,12 +216,13 @@ export class InventoryPage implements OnInit, OnDestroy {
         return;
       }
       
+      // Abrir conexión a la base de datos
       const db = (window as any).sqlitePlugin.openDatabase({
         name: 'scanshelf.db',
         location: 'default'
       });
       
-      // Consultar productos
+      // Consultar todos los productos ordenados por fecha de creación
       const result = await new Promise((resolve, reject) => {
         db.executeSql(
           'SELECT * FROM products ORDER BY createdAt DESC',
@@ -447,7 +232,7 @@ export class InventoryPage implements OnInit, OnDestroy {
         );
       });
       
-      // Convertir resultado a array
+      // Convertir resultado de SQLite a array de productos
       const products: Product[] = [];
       const resultSet = result as any;
       
@@ -470,11 +255,10 @@ export class InventoryPage implements OnInit, OnDestroy {
       }
       
       this.products = products;
-      // Actualizar filtros después de cargar productos
       this.updateFilters();
       
     } catch (error: any) {
-      console.error('Error cargando productos:', error);
+      console.error('❌ Error cargando productos:', error);
       this.products = [];
       this.filteredProducts = [];
     } finally {
@@ -584,10 +368,16 @@ export class InventoryPage implements OnInit, OnDestroy {
     event.target.complete();
   }
 
-  // Métodos para la nueva UI con modal
-  async openAddProductModal() {
+  /**
+   * Abrir modal para agregar nuevo producto
+   * @param barcode - Código de barras pre-rellenado (opcional, desde scanner)
+   */
+  async openAddProductModal(barcode?: string) {
     const modal = await this.modalController.create({
-      component: AddProductModalComponent
+      component: AddProductModalComponent,
+      componentProps: {
+        barcode: barcode
+      }
     });
 
     modal.onDidDismiss().then(async (result) => {
@@ -645,7 +435,9 @@ export class InventoryPage implements OnInit, OnDestroy {
     return icons[category] || 'cube-outline';
   }
 
-  // Métodos para el sistema de estadísticas del summary
+  /**
+   * Obtener cantidad de productos con stock bajo
+   */
   getLowStockCount(): number {
     return this.products.filter(product => 
       product.stock > 0 && product.stock <= product.minStock
@@ -662,41 +454,30 @@ export class InventoryPage implements OnInit, OnDestroy {
     );
   }
 
-  // Método para obtener el estado del stock para la UI
+  /**
+   * Obtener estado del stock de un producto (para badges de color)
+   */
   getStockStatus(product: Product): 'in-stock' | 'low-stock' | 'out-of-stock' {
     if (product.stock === 0) return 'out-of-stock';
     if (product.stock <= product.minStock) return 'low-stock';
     return 'in-stock';
   }
 
-  // Sistema de actualización automática
-  private refreshInterval: any;
-  private readonly AUTO_REFRESH_INTERVAL = 30000; // 30 segundos
-
-  initAutoRefresh() {
-    this.refreshInterval = setInterval(() => {
-      this.loadProductsDirect();
-    }, this.AUTO_REFRESH_INTERVAL);
-  }
-
-  stopAutoRefresh() {
-    if (this.refreshInterval) {
-      clearInterval(this.refreshInterval);
-      this.refreshInterval = null;
-    }
-  }
-
-  // Método para refrescar manualmente
+  /**
+   * Refrescar inventario manualmente (pull-to-refresh)
+   */
   async refreshInventory() {
     await this.loadProductsDirect();
     this.showToast('Inventario actualizado', 'success');
   }
 
-  // Métodos de filtrado
+  /**
+   * Filtrar productos por término de búsqueda y categoría
+   */
   filterProducts() {
     let filtered = [...this.products];
 
-    // Filtrar por término de búsqueda
+    // Aplicar filtro de búsqueda
     if (this.searchTerm && this.searchTerm.trim()) {
       const searchLower = this.searchTerm.toLowerCase().trim();
       filtered = filtered.filter(product =>
@@ -707,7 +488,7 @@ export class InventoryPage implements OnInit, OnDestroy {
       );
     }
 
-    // Filtrar por categoría
+    // Aplicar filtro de categoría
     if (this.selectedCategory && this.selectedCategory !== 'all') {
       filtered = filtered.filter(product => product.category === this.selectedCategory);
     }
@@ -715,7 +496,9 @@ export class InventoryPage implements OnInit, OnDestroy {
     this.filteredProducts = filtered;
   }
 
-  // Actualizar filtros cuando se cargan productos
+  /**
+   * Actualizar filtros después de cargar productos
+   */
   private updateFilters() {
     this.filterProducts();
   }
@@ -748,6 +531,9 @@ export class InventoryPage implements OnInit, OnDestroy {
         } else if (result.data.action === 'delete') {
           // Confirmar y eliminar producto
           await this.deleteProduct(product);
+        } else if (result.data.action === 'update') {
+          // Stock actualizado, recargar productos
+          await this.loadProductsDirect();
         }
       }
     });

@@ -66,15 +66,6 @@
       </div>
     </div>
 
-    <!-- Diagnostic banner -->
-    <div *ngIf="diagnosticMessages.length > 0 && showDiagnostics" class="diagnostic-banner">
-      <ion-icon name="information-circle-outline" color="warning"></ion-icon>
-      <span class="diagnostic-text">{{ diagnosticMessages[diagnosticMessages.length - 1]?.text }}</span>
-      <ion-button fill="clear" size="small" (click)="showDiagnostics = false">
-        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-    </div>
-
     <!-- Filtros section -->
     <div class="filters-section" *ngIf="products.length > 0">
       <div class="search-container">

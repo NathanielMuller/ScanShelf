@@ -1,163 +1,40 @@
-<ion-header class="movements-header">
-  <ion-toolbar class="main-toolbar">
-    <ion-title class="page-title">
-      <ion-icon name="swap-horizontal-outline" class="title-icon"></ion-icon>
-      Movimientos
-    </ion-title>
-  </ion-toolbar>
-  
-  <!-- Filter Toolbar -->
-  <ion-toolbar class="filter-toolbar">
-    <ion-segment 
-      [value]="selectedFilter" 
-      (ionChange)="onFilterChange($event)"
-      class="filter-segment"
-    >
-      <ion-segment-button 
-        *ngFor="let filter of filters" 
-        [value]="filter.value"
-        class="filter-btn"
-      >
-        <ion-label>{{ filter.label }}</ion-label>
-      </ion-segment-button>
-    </ion-segment>
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Movimientos</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="movements-page" fullscreen>
-  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
-    <ion-refresher-content
-      refreshingText="Actualizando movimientos..."
-      pullingText="Desliza para actualizar">
-    </ion-refresher-content>
-  </ion-refresher>
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Movimientos</ion-title>
+    </ion-toolbar>
+  </ion-header>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
-    <ion-spinner name="crescent" class="main-spinner"></ion-spinner>
-    <p class="loading-text">Cargando movimientos...</p>
-  </div>
-
-  <!-- Content -->
-  <div *ngIf="!isLoading" class="movements-container">
+  <div class="development-container" @fadeIn>
     
-    <!-- Summary Stats -->
-    <div class="summary-section">
-      <h3 class="summary-title">Resumen del Período</h3>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <ion-icon name="arrow-down-circle" class="stat-icon success"></ion-icon>
-          <div class="stat-info">
-            <span class="stat-number">{{ getSummaryStats().entries }}</span>
-            <span class="stat-label">Entradas</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <ion-icon name="arrow-up-circle" class="stat-icon primary"></ion-icon>
-          <div class="stat-info">
-            <span class="stat-number">{{ getSummaryStats().exits }}</span>
-            <span class="stat-label">Salidas</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <ion-icon name="create-outline" class="stat-icon warning"></ion-icon>
-          <div class="stat-info">
-            <span class="stat-number">{{ getSummaryStats().adjustments }}</span>
-            <span class="stat-label">Ajustes</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <ion-icon name="swap-horizontal" class="stat-icon tertiary"></ion-icon>
-          <div class="stat-info">
-            <span class="stat-number">{{ getSummaryStats().transfers }}</span>
-            <span class="stat-label">Transferencias</span>
-          </div>
-        </div>
+    <!-- Main development message -->
+    <div class="development-hero">
+      <div class="charts-icon">
+        <ion-icon name="swap-horizontal-outline"></ion-icon>
       </div>
-    </div>
-
-    <!-- No movements message -->
-    <div *ngIf="filteredMovements.length === 0" class="empty-state">
-      <ion-icon name="list-outline" class="empty-icon"></ion-icon>
-      <h3 class="empty-title">No hay movimientos</h3>
-      <p class="empty-subtitle">
-        No se encontraron movimientos para el período seleccionado
+      <h1>Página en Desarrollo</h1>
+      <p class="hero-subtitle">
+        Esta funcionalidad se encuentra en desarrollo. Próximamente se agregarán nuevas características.
       </p>
     </div>
 
-    <!-- Movements Timeline -->
-    <div *ngIf="filteredMovements.length > 0" class="timeline-section" [@listAnimation]="animationState">
-      <h3 class="timeline-title">Historial de Movimientos</h3>
-      
-      <div class="timeline">
-        <div 
-          *ngFor="let movement of filteredMovements; let i = index" 
-          class="timeline-item card-modern"
-          [class.animate-stagger-1]="i === 0"
-          [class.animate-stagger-2]="i === 1"
-          [class.animate-stagger-3]="i === 2"
-          [class.animate-stagger-4]="i === 3"
-          [class.animate-stagger-5]="i === 4"
-          [class.animate-stagger-6]="i === 5"
-        >
-          <div class="movement-indicator">
-            <ion-icon 
-              [name]="getMovementIcon(movement.type)"
-              [color]="getMovementColor(movement.type)"
-              class="movement-icon"
-            ></ion-icon>
-          </div>
-          
-          <div class="movement-content">
-            <div class="movement-header">
-              <div class="movement-info">
-                <h4 class="movement-product">{{ movement.product }}</h4>
-                <p class="movement-sku">{{ movement.sku }}</p>
-              </div>
-              <div class="movement-quantity" 
-                   [class.positive]="movement.type === 'entrada'"
-                   [class.negative]="movement.type === 'salida'"
-                   [class.adjustment]="movement.type === 'ajuste'"
-                   [class.transfer]="movement.type === 'transferencia'">
-                {{ getQuantityDisplay(movement) }}
-              </div>
-            </div>
-            
-            <div class="movement-details">
-              <p class="movement-reason">
-                <ion-icon name="information-circle-outline" class="detail-icon"></ion-icon>
-                {{ movement.reason }}
-              </p>
-              
-              <div class="movement-meta">
-                <span class="movement-user">
-                  <ion-icon name="person-outline" class="meta-icon"></ion-icon>
-                  {{ movement.user }}
-                </span>
-                
-                <span class="movement-time">
-                  <ion-icon name="time-outline" class="meta-icon"></ion-icon>
-                  {{ getRelativeTime(movement.timestamp) }}
-                </span>
-              </div>
-              
-              <p *ngIf="movement.location" class="movement-location">
-                <ion-icon name="location-outline" class="detail-icon"></ion-icon>
-                {{ movement.location }}
-              </p>
-            </div>
-            
-            <div class="movement-type-badge">
-              <ion-badge 
-                [color]="getMovementColor(movement.type)"
-                class="type-badge"
-              >
-                {{ movement.type | titlecase }}
-              </ion-badge>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Status message -->
+    <div class="status-message">
+      <ion-chip color="tertiary" outline="true">
+        <ion-icon name="code-working-outline"></ion-icon>
+        <ion-label>En desarrollo</ion-label>
+      </ion-chip>
+      <p>
+        Próximamente se agregarán funcionalidades a esta página.
+      </p>
     </div>
+
   </div>
+
 </ion-content>

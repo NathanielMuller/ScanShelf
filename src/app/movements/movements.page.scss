@@ -1,9 +1,164 @@
-/* Movements Page Styles */
-.movements-page {
-  --ion-background-color: var(--color-bg);
+/* ============================================
+   Movements Page Development Styles
+   ============================================ */
+
+ion-content {
+  --background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
 }
 
-/* Header Styles */
+.development-container {
+  padding: 32px 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   Hero Section
+   ============================================ */
+
+.development-hero {
+  text-align: center;
+  margin-bottom: 48px;
+  
+  .charts-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, var(--ion-color-tertiary), var(--ion-color-tertiary-shade));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 32px;
+    box-shadow: 0 8px 32px rgba(var(--ion-color-tertiary-rgb), 0.25);
+    animation: chartFloat 4s ease-in-out infinite;
+    
+    ion-icon {
+      font-size: 48px;
+      color: white;
+    }
+  }
+  
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin-bottom: 16px;
+    font-family: var(--ion-font-family, 'Inter', sans-serif);
+  }
+  
+  .hero-subtitle {
+    font-size: 1.1rem;
+    color: var(--ion-color-medium);
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+}
+
+/* ============================================
+   Status Message
+   ============================================ */
+
+.status-message {
+  text-align: center;
+  
+  ion-chip {
+    margin-bottom: 20px;
+    --background: rgba(var(--ion-color-tertiary-rgb), 0.1);
+    --color: var(--ion-color-tertiary-shade);
+    font-weight: 500;
+    
+    ion-icon {
+      margin-right: 8px;
+    }
+  }
+  
+  p {
+    font-size: 0.95rem;
+    color: var(--ion-color-medium);
+    line-height: 1.6;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes chartFloat {
+  0%, 100% { 
+    transform: translateY(0) rotate(0deg);
+  }
+  25% { 
+    transform: translateY(-8px) rotate(1deg);
+  }
+  50% { 
+    transform: translateY(0) rotate(0deg);
+  }
+  75% { 
+    transform: translateY(-4px) rotate(-1deg);
+  }
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (min-width: 768px) {
+  .development-container {
+    padding: 48px 40px;
+  }
+}
+
+@media (max-width: 576px) {
+  .development-container {
+    padding: 24px 16px;
+  }
+  
+  .development-hero {
+    margin-bottom: 40px;
+    
+    .charts-icon {
+      width: 80px;
+      height: 80px;
+      
+      ion-icon {
+        font-size: 40px;
+      }
+    }
+    
+    h1 {
+      font-size: 1.7rem;
+    }
+    
+    .hero-subtitle {
+      font-size: 1rem;
+    }
+  }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .charts-icon {
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .development-hero .charts-icon {
+    border: 2px solid var(--ion-color-tertiary-contrast);
+  }
+}
+
+/* LEGACY STYLES - TO BE REMOVED */
+/* ============================================
+   Old Header Styles (not used in development view)
+   ============================================ */
 .movements-header {
   --ion-toolbar-background: var(--color-surface);
   box-shadow: 0 2px 8px rgba(2, 6, 23, 0.04);

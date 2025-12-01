@@ -130,12 +130,37 @@ export class ScanPage implements OnInit, OnDestroy {
         // Mostrar modal con detalles del producto
         await this.showProductDetails(product);
       } else {
-        await this.showToast('Producto no encontrado', 'warning');
+        // Producto no encontrado - mostrar modal para crear
+        await this.showProductNotFoundModal(code);
       }
     } catch (error) {
       console.error('Error buscando producto:', error);
       await this.showToast('Error al buscar producto', 'danger');
     }
+  }
+
+  /**
+   * Mostrar modal cuando el producto no existe
+   * Ofrece la opción de crear un nuevo producto
+   */
+  async showProductNotFoundModal(code: string) {
+    const modal = await this.modalController.create({
+      component: ScanProductDetailModalComponent,
+      componentProps: {
+        product: null,
+        scannedCode: code
+      }
+    });
+
+    modal.onDidDismiss().then(async (result) => {
+      if (result.data && result.data.action === 'create') {
+        // Navegar a la página de inventario para crear producto
+        // Por ahora mostrar mensaje
+        await this.showToast('Redirigiendo a crear producto...', 'primary');
+      }
+    });
+
+    return await modal.present();
   }
 
   async showProductDetails(product: any) {

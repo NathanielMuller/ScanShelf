@@ -28,14 +28,18 @@ export class InventoryCodeService {
   constructor() { }
 
   /**
-   * Generar SKU único basado en categoría y contador
-   * Formato: CAT + número secuencial de 3 dígitos (ej: ELE001, ALI002)
+   * Generar código SKU único para un producto
+   * Formato simple: CAT + contador de 3 dígitos
+   * Ejemplos: ELE001, ALI002, ROP015
+   * @param category Nombre de la categoría del producto
+   * @param existingSKUs Lista de SKUs ya existentes para evitar duplicados
+   * @returns SKU generado en formato CAT###
    */
   generateSKU(category: string, existingSKUs: string[] = []): string {
-    // Obtener código de categoría
+    // Convertir categoría a código de 3 letras
     const categoryCode = this.getCategoryCode(category);
     
-    // Encontrar el siguiente número disponible para esta categoría
+    // Buscar el siguiente número disponible para esta categoría
     const categorySKUs = existingSKUs.filter(sku => sku.startsWith(categoryCode));
     
     let nextNumber = 1;
@@ -56,17 +60,25 @@ export class InventoryCodeService {
   }
 
   /**
-   * Generar SKU con formato personalizado: [CATEGORÍA]-[MARCA]-[NÚMERO]
-   * Ejemplo: ELE-SAM-001, ALI-NES-005, ROP-NIK-012
+   * Generar código SKU personalizado con categoría, marca y número
+   * Formato: [CATEGORÍA]-[MARCA]-[NÚMERO]
+   * Ejemplos:
+   *   - ELE-SAM-001 (Electrónicos - Samsung - 001)
+   *   - ALI-NES-005 (Alimentación - Nestlé - 005)
+   *   - ROP-NIK-012 (Ropa - Nike - 012)
+   * @param category Nombre de la categoría (ej: "Electrónicos")
+   * @param brand Nombre de la marca (ej: "Samsung")
+   * @param existingSKUs Lista de SKUs existentes para evitar duplicados
+   * @returns SKU en formato CAT-MAR-###
    */
   generateCustomSKU(category: string, brand: string, existingSKUs: string[] = []): string {
-    // Obtener abreviación de categoría (3 letras)
+    // Convertir categoría a código de 3 letras (ej: Electrónicos -> ELE)
     const categoryCode = this.getCategoryCode(category);
     
-    // Generar abreviación de marca (3 letras)
+    // Convertir marca a código de 3 letras (ej: Samsung -> SAM)
     const brandCode = this.generateBrandCode(brand);
     
-    // Crear prefijo del SKU
+    // Construir el prefijo del SKU
     const skuPrefix = `${categoryCode}-${brandCode}-`;
     
     // Buscar SKUs existentes con el mismo prefijo
@@ -158,7 +170,9 @@ export class InventoryCodeService {
   }
 
   /**
-   * Validar formato de SKU
+   * Validar si un SKU tiene el formato correcto
+   * Formato válido: 3 letras (código categoría) + 3 dígitos (número)
+   * Ejemplo válido: ELE001, ALI025, ROP100
    */
   validateSKUFormat(sku: string): boolean {
     if (!sku || sku.length !== 6) return false;
@@ -166,21 +180,22 @@ export class InventoryCodeService {
     const categoryCode = sku.substring(0, 3);
     const number = sku.substring(3);
     
-    // Verificar que el código de categoría existe
+    // Verificar que el código de categoría es válido
     const validCategoryCodes = Object.values(this.CATEGORY_CODES);
     if (!validCategoryCodes.includes(categoryCode)) return false;
     
-    // Verificar que los últimos 3 caracteres son números
+    // Verificar que la parte numérica tiene 3 dígitos
     return /^\d{3}$/.test(number);
   }
 
   /**
-   * Validar formato de código de barras EAN-13
+   * Validar si un código de barras EAN-13 es válido
+   * Verifica longitud, formato numérico y dígito verificador
    */
   validateBarcodeFormat(barcode: string): boolean {
     if (!barcode || barcode.length !== 13) return false;
     
-    // Verificar que son todos números
+    // Verificar que contiene solo números
     if (!/^\d{13}$/.test(barcode)) return false;
     
     // Verificar dígito verificador
@@ -254,7 +269,10 @@ export class InventoryCodeService {
   }
 
   /**
-   * Obtener información del SKU (categoría y número)
+   * Extraer información de un SKU simple (formato CAT###)
+   * Devuelve la categoría y el número secuencial
+   * @param sku Código SKU a analizar (ej: "ELE001")
+   * @returns Objeto con categoría, número y validez del SKU
    */
   parseSKU(sku: string): { category: string; number: number; isValid: boolean } {
     if (!this.validateSKUFormat(sku)) {
@@ -277,10 +295,13 @@ export class InventoryCodeService {
   }
 
   /**
-   * Obtener información del SKU personalizado (categoría, marca y número)
+   * Extraer información de un SKU personalizado (formato CAT-MAR-###)
+   * Devuelve la categoría, marca y número secuencial
+   * @param sku Código SKU a analizar (ej: "ELE-SAM-001")
+   * @returns Objeto con categoría, marca, número y validez del SKU
    */
   parseCustomSKU(sku: string): { category: string; brand: string; number: number; isValid: boolean } {
-    // Verificar formato: XXX-XXX-000
+    // Validar formato esperado: XXX-XXX-000
     const skuPattern = /^([A-Z]{3})-([A-Z]{3})-(\d{3})$/;
     const match = sku.match(skuPattern);
     
@@ -312,7 +333,8 @@ export class InventoryCodeService {
   }
 
   /**
-   * Generar códigos de ejemplo para demostración
+   * Generar datos de productos de ejemplo con SKUs y códigos de barras
+   * Útil para pruebas y demostraciones de la aplicación
    */
   generateDemoData(): Array<{
     category: string;
