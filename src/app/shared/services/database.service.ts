@@ -237,7 +237,7 @@ export class DatabaseService {
           quantity INTEGER NOT NULL CHECK (quantity > 0),
           previousStock INTEGER DEFAULT 0,
           newStock INTEGER DEFAULT 0,
-          reason TEXT NOT NULL,
+          reason TEXT NOT NULL CHECK (reason IN ('venta', 'perdida', 'ingreso', 'devolucion')),
           notes TEXT,
           userId TEXT NOT NULL,
           createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -290,7 +290,6 @@ export class DatabaseService {
         `, []);
         console.log('✅ Columna image agregada a products');
       } catch (error) {
-        // La columna ya existe, ignorar error
         console.log('ℹ️ Columna image ya existe en products');
       }
 
@@ -301,7 +300,6 @@ export class DatabaseService {
         `, []);
         console.log('✅ Columna brand agregada a products');
       } catch (error) {
-        // La columna ya existe, ignorar error
         console.log('ℹ️ Columna brand ya existe en products');
       }
     } catch (error) {

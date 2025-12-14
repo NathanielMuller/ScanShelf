@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController, AlertController, ToastController } from '@ionic/angular';
+import { MovementsService } from '../../shared/services/movements.service';
 
 interface Product {
   id?: number;
@@ -28,7 +29,8 @@ export class ProductDetailModalComponent implements OnInit {
   constructor(
     private modalController: ModalController,
     private alertController: AlertController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private movementsService: MovementsService
   ) {}
 
   ngOnInit() {
@@ -244,7 +246,8 @@ export class ProductDetailModalComponent implements OnInit {
    * Mostrar diálogo para añadir stock al producto
    */
   async addStock() {
-    const alert = await this.alertController.create({
+    // Primer alert: cantidad y notas
+    const alert1 = await this.alertController.create({
       header: 'Añadir Stock',
       message: `Stock actual: ${this.product.stock} unidades`,
       inputs: [
@@ -254,6 +257,11 @@ export class ProductDetailModalComponent implements OnInit {
           placeholder: 'Cantidad a añadir',
           min: 1,
           value: 1
+        },
+        {
+          name: 'notes',
+          type: 'textarea',
+          placeholder: 'Notas (opcional)'
         }
       ],
       buttons: [
@@ -262,11 +270,46 @@ export class ProductDetailModalComponent implements OnInit {
           role: 'cancel'
         },
         {
-          text: 'Añadir',
-          handler: (data) => {
+          text: 'Siguiente',
+          handler: async (data) => {
             const quantity = parseInt(data.quantity);
             if (quantity && quantity > 0) {
-              this.updateStock(quantity);
+              // Segundo alert: seleccionar razón
+              const alert2 = await this.alertController.create({
+                header: 'Razón de la entrada',
+                message: 'Selecciona el motivo:',
+                inputs: [
+                  {
+                    name: 'reason',
+                    type: 'radio',
+                    label: 'Ingreso de mercancía',
+                    value: 'ingreso',
+                    checked: true
+                  },
+                  {
+                    name: 'reason',
+                    type: 'radio',
+                    label: 'Devolución de cliente',
+                    value: 'devolucion'
+                  }
+                ],
+                buttons: [
+                  {
+                    text: 'Atrás',
+                    role: 'cancel',
+                    handler: () => {
+                      this.addStock(); // Volver a mostrar el primer alert
+                    }
+                  },
+                  {
+                    text: 'Confirmar',
+                    handler: (reasonData) => {
+                      this.updateStock(quantity, 'entrada', reasonData as any, data.notes);
+                    }
+                  }
+                ]
+              });
+              await alert2.present();
               return true;
             } else {
               this.showToast('Por favor ingresa una cantidad válida', 'warning');
@@ -277,14 +320,15 @@ export class ProductDetailModalComponent implements OnInit {
       ]
     });
 
-    await alert.present();
+    await alert1.present();
   }
 
   /**
    * Mostrar diálogo para reducir stock (registrar salida)
    */
   async reduceStock() {
-    const alert = await this.alertController.create({
+    // Primer alert: cantidad y notas
+    const alert1 = await this.alertController.create({
       header: 'Registrar Salida',
       message: `Stock actual: ${this.product.stock} unidades`,
       inputs: [
@@ -294,6 +338,11 @@ export class ProductDetailModalComponent implements OnInit {
           placeholder: 'Cantidad de salida',
           min: 1,
           value: 1
+        },
+        {
+          name: 'notes',
+          type: 'textarea',
+          placeholder: 'Notas (opcional)'
         }
       ],
       buttons: [
@@ -302,15 +351,50 @@ export class ProductDetailModalComponent implements OnInit {
           role: 'cancel'
         },
         {
-          text: 'Registrar',
-          handler: (data) => {
+          text: 'Siguiente',
+          handler: async (data) => {
             const quantity = parseInt(data.quantity);
             if (quantity && quantity > 0) {
               if (quantity > this.product.stock) {
                 this.showToast('No hay suficiente stock disponible', 'warning');
                 return false;
               }
-              this.updateStock(-quantity);
+              // Segundo alert: seleccionar razón
+              const alert2 = await this.alertController.create({
+                header: 'Razón de la salida',
+                message: 'Selecciona el motivo:',
+                inputs: [
+                  {
+                    name: 'reason',
+                    type: 'radio',
+                    label: 'Venta',
+                    value: 'venta',
+                    checked: true
+                  },
+                  {
+                    name: 'reason',
+                    type: 'radio',
+                    label: 'Pérdida/Merma',
+                    value: 'perdida'
+                  }
+                ],
+                buttons: [
+                  {
+                    text: 'Atrás',
+                    role: 'cancel',
+                    handler: () => {
+                      this.reduceStock(); // Volver a mostrar el primer alert
+                    }
+                  },
+                  {
+                    text: 'Confirmar',
+                    handler: (reasonData) => {
+                      this.updateStock(-quantity, 'salida', reasonData as any, data.notes);
+                    }
+                  }
+                ]
+              });
+              await alert2.present();
               return true;
             } else {
               this.showToast('Por favor ingresa una cantidad válida', 'warning');
@@ -321,13 +405,18 @@ export class ProductDetailModalComponent implements OnInit {
       ]
     });
 
-    await alert.present();
+    await alert1.present();
   }
 
   /**
-   * Actualizar el stock del producto en la base de datos
+   * Actualizar el stock del producto en la base de datos y registrar movimiento
    */
-  async updateStock(quantity: number) {
+  async updateStock(
+    quantity: number, 
+    type: 'entrada' | 'salida', 
+    reason: 'venta' | 'perdida' | 'ingreso' | 'devolucion',
+    notes?: string
+  ) {
     try {
       if (!(window as any).sqlitePlugin) {
         throw new Error('Plugin SQLite no disponible');
@@ -338,20 +427,33 @@ export class ProductDetailModalComponent implements OnInit {
         location: 'default'
       });
 
+      const previousStock = this.product.stock;
       const newStock = this.product.stock + quantity;
 
       db.transaction((tx: any) => {
         tx.executeSql(
           'UPDATE products SET stock = ? WHERE id = ?',
           [newStock, this.product.id],
-          () => {
-            const oldStock = this.product.stock;
+          async () => {
             this.product.stock = newStock;
             
+            // Registrar el movimiento
+            await this.movementsService.registerMovement({
+              productId: this.product.id!,
+              productName: this.product.name,
+              type: type,
+              quantity: Math.abs(quantity),
+              previousStock: previousStock,
+              newStock: newStock,
+              reason: reason,
+              notes: notes,
+              userId: localStorage.getItem('currentUser') || 'user'
+            });
+            
             if (quantity > 0) {
-              this.showToast(`Se agregaron ${quantity} unidades. Stock actual: ${newStock}`, 'success');
+              this.showToast(`Se agregaron ${quantity} unidades. Stock: ${newStock}`, 'success');
             } else {
-              this.showToast(`Se registró salida de ${Math.abs(quantity)} unidades. Stock actual: ${newStock}`, 'success');
+              this.showToast(`Salida registrada: ${Math.abs(quantity)} unidades. Stock: ${newStock}`, 'success');
             }
           },
           (error: any) => {

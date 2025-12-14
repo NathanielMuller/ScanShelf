@@ -11,30 +11,140 @@
     </ion-toolbar>
   </ion-header>
 
-  <div class="development-container" @fadeIn>
+  <!-- Barra de búsqueda y filtros -->
+  <div class="search-filter-container">
+    <ion-searchbar 
+      placeholder="Buscar producto..." 
+      [(ngModel)]="searchTerm"
+      (ionInput)="onSearchChange($event)"
+      animated="true">
+    </ion-searchbar>
+
+    <!-- Filtros -->
+    <div class="filters-row">
+      <ion-segment [(ngModel)]="selectedPeriod" (ionChange)="onPeriodChange($event)" mode="md">
+        <ion-segment-button value="day">
+          <ion-label>Hoy</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="week">
+          <ion-label>Semana</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="month">
+          <ion-label>Mes</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="all">
+          <ion-label>Todo</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <div class="filters-row">
+      <ion-select 
+        [(ngModel)]="selectedType" 
+        (ionChange)="onTypeChange($event)"
+        placeholder="Tipo"
+        interface="popover">
+        <ion-select-option value="all">Todos los tipos</ion-select-option>
+        <ion-select-option value="entrada">Entradas</ion-select-option>
+        <ion-select-option value="salida">Salidas</ion-select-option>
+      </ion-select>
+
+      <ion-select 
+        [(ngModel)]="selectedReason" 
+        (ionChange)="onReasonChange($event)"
+        placeholder="Razón"
+        interface="popover">
+        <ion-select-option value="all">Todas las razones</ion-select-option>
+        <ion-select-option value="venta">Venta</ion-select-option>
+        <ion-select-option value="perdida">Pérdida</ion-select-option>
+        <ion-select-option value="ingreso">Ingreso</ion-select-option>
+        <ion-select-option value="devolucion">Devolución</ion-select-option>
+      </ion-select>
+    </div>
+  </div>
+
+  <!-- Refresher -->
+  <ion-refresher slot="fixed" (ionRefresh)="refreshMovements($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner></ion-spinner>
+    <p>Cargando movimientos...</p>
+  </div>
+
+  <!-- Lista de movimientos -->
+  <div class="movements-container" *ngIf="!isLoading">
     
-    <!-- Main development message -->
-    <div class="development-hero">
-      <div class="charts-icon">
+    <!-- Sin movimientos -->
+    <div class="empty-state" *ngIf="filteredMovements.length === 0" @fadeIn>
+      <div class="empty-icon">
         <ion-icon name="swap-horizontal-outline"></ion-icon>
       </div>
-      <h1>Página en Desarrollo</h1>
-      <p class="hero-subtitle">
-        Esta funcionalidad se encuentra en desarrollo. Próximamente se agregarán nuevas características.
-      </p>
+      <h2>No hay movimientos</h2>
+      <p>Los movimientos de inventario aparecerán aquí</p>
     </div>
 
-    <!-- Status message -->
-    <div class="status-message">
-      <ion-chip color="tertiary" outline="true">
-        <ion-icon name="code-working-outline"></ion-icon>
-        <ion-label>En desarrollo</ion-label>
-      </ion-chip>
-      <p>
-        Próximamente se agregarán funcionalidades a esta página.
-      </p>
-    </div>
+    <!-- Lista de movimientos -->
+    <div class="movement-list" *ngIf="filteredMovements.length > 0">
+      <ion-card 
+        class="movement-card" 
+        *ngFor="let movement of filteredMovements"
+        @fadeIn>
+        
+        <ion-card-content>
+          <div class="movement-header">
+            <div class="movement-info">
+              <div class="movement-type-badge" [class]="movement.type">
+                <ion-icon [name]="getMovementIcon(movement.type)"></ion-icon>
+                <span>{{ movement.type === 'entrada' ? 'ENTRADA' : 'SALIDA' }}</span>
+              </div>
+              <h3>{{ movement.productName }}</h3>
+            </div>
+            <div class="movement-quantity" [class]="movement.type">
+              <span class="sign">{{ movement.type === 'entrada' ? '+' : '-' }}</span>
+              <span class="number">{{ movement.quantity }}</span>
+            </div>
+          </div>
 
+          <div class="movement-details">
+            <div class="detail-item">
+              <ion-icon [name]="getReasonIcon(movement.reason)"></ion-icon>
+              <span>{{ getReasonLabel(movement.reason) }}</span>
+            </div>
+            
+            <div class="detail-item">
+              <ion-icon name="calendar-outline"></ion-icon>
+              <span>{{ formatDate(movement.createdAt!) }}</span>
+            </div>
+            
+            <div class="detail-item">
+              <ion-icon name="time-outline"></ion-icon>
+              <span>{{ formatTime(movement.createdAt!) }}</span>
+            </div>
+          </div>
+
+          <div class="stock-info">
+            <div class="stock-change">
+              <span class="label">Stock anterior:</span>
+              <span class="value">{{ movement.previousStock }}</span>
+            </div>
+            <ion-icon name="arrow-forward-outline" class="arrow"></ion-icon>
+            <div class="stock-change">
+              <span class="label">Stock nuevo:</span>
+              <span class="value">{{ movement.newStock }}</span>
+            </div>
+          </div>
+
+          <div class="movement-notes" *ngIf="movement.notes">
+            <ion-icon name="document-text-outline"></ion-icon>
+            <span>{{ movement.notes }}</span>
+          </div>
+        </ion-card-content>
+
+      </ion-card>
+    </div>
   </div>
 
 </ion-content>
