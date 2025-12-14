@@ -509,10 +509,145 @@ export class InventoryPage implements OnInit {
     return 'success';
   }
 
-  editProduct(product: Product, index: number) {
-    // Implementar edición de producto
-    console.log('Editando producto:', product);
-    this.showToast('Función de edición próximamente', 'tertiary');
+  async editProduct(product: Product, index: number) {
+    const alert = await this.alertController.create({
+      header: 'Editar Producto',
+      inputs: [
+        {
+          name: 'name',
+          type: 'text',
+          label: 'Nombre del producto',
+          placeholder: 'Ej: Coca Cola 2L',
+          value: product.name
+        },
+        {
+          name: 'category',
+          type: 'text',
+          label: 'Categoría',
+          placeholder: 'Ej: Bebidas',
+          value: product.category
+        },
+        {
+          name: 'brand',
+          type: 'text',
+          label: 'Marca',
+          placeholder: 'Ej: Coca Cola',
+          value: product.brand || ''
+        },
+        {
+          name: 'price',
+          type: 'number',
+          label: 'Precio ($)',
+          placeholder: '0',
+          value: product.price
+        },
+        {
+          name: 'minStock',
+          type: 'number',
+          label: 'Stock mínimo (unidades)',
+          placeholder: '0',
+          value: product.minStock,
+          min: 0
+        },
+        {
+          name: 'stock',
+          type: 'number',
+          label: 'Stock actual (unidades)',
+          placeholder: '0',
+          value: product.stock,
+          min: 0
+        },
+        {
+          name: 'description',
+          type: 'textarea',
+          label: 'Descripción',
+          placeholder: 'Descripción opcional del producto',
+          value: product.description || ''
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+        {
+          text: 'Guardar',
+          handler: (data) => {
+            if (!data.name || !data.category || !data.price) {
+              this.showToast('Por favor completa los campos obligatorios', 'warning');
+              return false;
+            }
+            
+            const price = parseFloat(data.price);
+            const minStock = parseInt(data.minStock) || 0;
+            const stock = parseInt(data.stock) || 0;
+            
+            if (price <= 0) {
+              this.showToast('El precio debe ser mayor a 0', 'warning');
+              return false;
+            }
+            
+            if (minStock < 0 || stock < 0) {
+              this.showToast('El stock no puede ser negativo', 'warning');
+              return false;
+            }
+            
+            this.saveProductChanges(product, data);
+            return true;
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  async saveProductChanges(product: Product, data: any) {
+    try {
+      if (!(window as any).sqlitePlugin) {
+        throw new Error('Plugin SQLite no disponible');
+      }
+
+      const db = (window as any).sqlitePlugin.openDatabase({
+        name: 'scanshelf.db',
+        location: 'default'
+      });
+
+      db.transaction((tx: any) => {
+        tx.executeSql(
+          `UPDATE products SET 
+            name = ?, 
+            category = ?, 
+            brand = ?, 
+            price = ?, 
+            minStock = ?, 
+            stock = ?, 
+            description = ? 
+          WHERE id = ?`,
+          [
+            data.name,
+            data.category,
+            data.brand || null,
+            parseFloat(data.price),
+            parseInt(data.minStock) || 0,
+            parseInt(data.stock) || 0,
+            data.description || null,
+            product.id
+          ],
+          async () => {
+            await this.loadProductsDirect();
+            this.showToast('Producto actualizado correctamente', 'success');
+          },
+          (error: any) => {
+            console.error('Error actualizando producto:', error);
+            this.showToast('Error al actualizar el producto', 'danger');
+          }
+        );
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      this.showToast('Error al actualizar el producto', 'danger');
+    }
   }
 
   async viewProductDetails(product: Product) {

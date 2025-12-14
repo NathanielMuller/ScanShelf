@@ -129,12 +129,22 @@
 
 </ion-content>
 
-<!-- Botón de acción flotante para añadir stock -->
+<!-- Botones de gestión de stock -->
 <ion-footer *ngIf="product">
   <ion-toolbar>
-    <ion-button expand="block" color="success" size="large" (click)="addStock()">
-      <ion-icon name="add-circle-outline" slot="start"></ion-icon>
-      Añadir Stock
-    </ion-button>
+    <ion-row>
+      <ion-col size="6">
+        <ion-button expand="block" color="success" size="large" (click)="addStock()">
+          <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+          Añadir
+        </ion-button>
+      </ion-col>
+      <ion-col size="6">
+        <ion-button expand="block" color="warning" size="large" (click)="reduceStock()">
+          <ion-icon name="remove-circle-outline" slot="start"></ion-icon>
+          Salida
+        </ion-button>
+      </ion-col>
+    </ion-row>
   </ion-toolbar>
 </ion-footer>

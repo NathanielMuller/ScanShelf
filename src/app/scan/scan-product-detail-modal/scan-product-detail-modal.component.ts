@@ -110,6 +110,50 @@ export class ScanProductDetailModalComponent implements OnInit {
   }
 
   /**
+   * Mostrar diálogo para reducir stock (registrar salida)
+   */
+  async reduceStock() {
+    const alert = await this.alertController.create({
+      header: 'Registrar Salida',
+      message: `Stock actual: ${this.product?.stock} unidades`,
+      inputs: [
+        {
+          name: 'quantity',
+          type: 'number',
+          placeholder: 'Cantidad de salida',
+          min: 1,
+          value: 1
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+        {
+          text: 'Registrar',
+          handler: async (data) => {
+            const quantity = parseInt(data.quantity);
+            if (quantity > 0) {
+              if (this.product && quantity > this.product.stock) {
+                await this.showToast('No hay suficiente stock disponible', 'warning');
+                return false;
+              }
+              await this.updateStock(-quantity);
+              return true;
+            } else {
+              await this.showToast('Cantidad inválida', 'warning');
+              return false;
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  /**
    * Actualizar el stock del producto en la base de datos
    */
   async updateStock(quantity: number) {
@@ -135,7 +179,11 @@ export class ScanProductDetailModalComponent implements OnInit {
       // Actualizar el producto en la vista
       this.product.stock = newStock;
 
-      await this.showToast(`Stock actualizado: ${newStock} unidades`, 'success');
+      if (quantity > 0) {
+        await this.showToast(`Se agregaron ${quantity} unidades. Stock: ${newStock}`, 'success');
+      } else {
+        await this.showToast(`Se registró salida de ${Math.abs(quantity)} unidades. Stock: ${newStock}`, 'success');
+      }
     } catch (error) {
       console.error('Error actualizando stock:', error);
       await this.showToast('Error al actualizar stock', 'danger');
