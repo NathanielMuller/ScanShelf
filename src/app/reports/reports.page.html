@@ -11,28 +11,61 @@
     </ion-toolbar>
   </ion-header>
 
-  <div class="development-container" @fadeIn>
+  <div class="reports-container">
     
-    <!-- Main development message -->
-    <div class="development-hero">
-      <div class="charts-icon">
-        <ion-icon name="analytics-outline"></ion-icon>
+    <!-- Header -->
+    <div class="page-header" @fadeIn>
+      <div class="header-icon">
+        <ion-icon name="document-text-outline"></ion-icon>
       </div>
-      <h1>Página en Desarrollo</h1>
-      <p class="hero-subtitle">
-        Esta funcionalidad se encuentra en desarrollo. Próximamente se agregarán nuevas características.
-      </p>
+      <h2>Exportar Reportes</h2>
+      <p>Genera y comparte reportes en formato CSV</p>
     </div>
 
-    <!-- Status message -->
-    <div class="status-message">
-      <ion-chip color="tertiary" outline="true">
-        <ion-icon name="code-working-outline"></ion-icon>
-        <ion-label>En desarrollo</ion-label>
-      </ion-chip>
-      <p>
-        Próximamente se agregarán funcionalidades a esta página.
-      </p>
+    <!-- Reportes disponibles -->
+    <div class="reports-grid">
+      <ion-card 
+        *ngFor="let report of reports; let i = index" 
+        class="report-card"
+        button="true"
+        (click)="generateReport(report.id)"
+        @slideIn>
+        
+        <ion-card-content>
+          <div class="report-icon" [style.--icon-color]="'var(--ion-color-' + report.color + ')'">
+            <ion-icon [name]="report.icon"></ion-icon>
+          </div>
+          
+          <div class="report-info">
+            <h3>{{ report.title }}</h3>
+            <p>{{ report.description }}</p>
+          </div>
+          
+          <div class="report-action">
+            <ion-icon name="share-outline"></ion-icon>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="info-section" @fadeIn>
+      <ion-card class="info-card">
+        <ion-card-header>
+          <ion-card-subtitle>
+            <ion-icon name="information-circle-outline"></ion-icon>
+            Información
+          </ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <ul>
+            <li>Los reportes se generan en formato CSV</li>
+            <li>Puedes abrir los archivos en Excel, Google Sheets, etc.</li>
+            <li>Comparte directamente vía WhatsApp, Email, Drive, etc.</li>
+            <li>Los datos se actualizan en tiempo real</li>
+          </ul>
+        </ion-card-content>
+      </ion-card>
     </div>
 
   </div>

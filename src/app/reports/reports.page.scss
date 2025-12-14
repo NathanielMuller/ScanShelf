@@ -1,365 +1,178 @@
 /* ============================================
-   Reports Page Development Styles
+   Reports Page Styles
    ============================================ */
 
 ion-content {
-  --background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  --background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
 }
 
-.development-container {
-  padding: 32px 20px;
-  max-width: 900px;
+.reports-container {
+  padding: 20px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-/* ============================================
-   Hero Section
-   ============================================ */
-
-.development-hero {
+/* Header */
+.page-header {
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: 32px;
   
-  .charts-icon {
-    width: 100px;
-    height: 100px;
-    background: linear-gradient(135deg, var(--ion-color-tertiary), var(--ion-color-tertiary-shade));
+  .header-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-secondary) 100%);
     border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 32px;
-    box-shadow: 0 8px 32px rgba(var(--ion-color-tertiary-rgb), 0.25);
-    animation: chartFloat 4s ease-in-out infinite;
+    box-shadow: 0 8px 24px rgba(var(--ion-color-primary-rgb), 0.3);
     
     ion-icon {
-      font-size: 48px;
+      font-size: 40px;
       color: white;
     }
   }
   
-  h1 {
-    font-size: 2rem;
+  h2 {
+    font-size: 28px;
     font-weight: 700;
     color: var(--ion-color-dark);
-    margin-bottom: 16px;
-    font-family: var(--ion-font-family, 'Inter', sans-serif);
-  }
-  
-  .hero-subtitle {
-    font-size: 1.1rem;
-    color: var(--ion-color-medium);
-    line-height: 1.6;
-    max-width: 500px;
-    margin: 0 auto;
-  }
-}
-
-/* ============================================
-   Reports Section
-   ============================================ */
-
-.reports-section {
-  margin-bottom: 48px;
-  
-  h2 {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: var(--ion-color-dark);
-    margin-bottom: 32px;
-    text-align: center;
-    font-family: var(--ion-font-family, 'Inter', sans-serif);
-  }
-}
-
-.reports-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-}
-
-.report-card {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-  animation: slideInUp 0.6s ease-out both;
-  
-  &:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-  }
-}
-
-.report-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.report-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  ion-icon {
-    font-size: 24px;
-    color: white;
-  }
-  
-  // Dynamic colors based on data attribute
-  &[data-color="primary"] {
-    background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
-  }
-  &[data-color="secondary"] {
-    background: linear-gradient(135deg, var(--ion-color-secondary), var(--ion-color-secondary-shade));
-  }
-  &[data-color="success"] {
-    background: linear-gradient(135deg, var(--ion-color-success), var(--ion-color-success-shade));
-  }
-  &[data-color="warning"] {
-    background: linear-gradient(135deg, var(--ion-color-warning), var(--ion-color-warning-shade));
-  }
-  &[data-color="tertiary"] {
-    background: linear-gradient(135deg, var(--ion-color-tertiary), var(--ion-color-tertiary-shade));
-  }
-  &[data-color="medium"] {
-    background: linear-gradient(135deg, var(--ion-color-medium), var(--ion-color-medium-shade));
-  }
-}
-
-.report-content {
-  h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--ion-color-dark);
-    margin-bottom: 8px;
-    font-family: var(--ion-font-family, 'Inter', sans-serif);
+    margin: 0 0 8px 0;
   }
   
   p {
-    font-size: 0.9rem;
     color: var(--ion-color-medium);
-    line-height: 1.5;
+    font-size: 16px;
     margin: 0;
   }
 }
 
-/* ============================================
-   Features Highlight
-   ============================================ */
-
-.features-highlight {
-  background: white;
-  border-radius: 16px;
-  padding: 32px 24px;
-  margin-bottom: 40px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
-  
-  h3 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--ion-color-dark);
-    margin-bottom: 24px;
-    text-align: center;
-    font-family: var(--ion-font-family, 'Inter', sans-serif);
-  }
-}
-
-.features-list {
+/* Reports Grid */
+.reports-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  animation: slideInLeft 0.5s ease-out both;
+  margin-bottom: 24px;
   
-  ion-icon {
-    font-size: 20px;
-    flex-shrink: 0;
-  }
-  
-  span {
-    font-size: 0.95rem;
-    color: var(--ion-color-dark);
-    line-height: 1.4;
-  }
-}
-
-/* ============================================
-   Status Message
-   ============================================ */
-
-.status-message {
-  text-align: center;
-  
-  ion-chip {
-    margin-bottom: 20px;
-    --background: rgba(var(--ion-color-tertiary-rgb), 0.1);
-    --color: var(--ion-color-tertiary-shade);
-    font-weight: 500;
-    
-    ion-icon {
-      margin-right: 8px;
-    }
-  }
-  
-  p {
-    font-size: 0.95rem;
-    color: var(--ion-color-medium);
-    line-height: 1.6;
-    max-width: 400px;
-    margin: 0 auto;
-  }
-}
-
-/* ============================================
-   Animations
-   ============================================ */
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes chartFloat {
-  0%, 100% { 
-    transform: translateY(0) rotate(0deg);
-  }
-  25% { 
-    transform: translateY(-8px) rotate(1deg);
-  }
-  50% { 
-    transform: translateY(0) rotate(0deg);
-  }
-  75% { 
-    transform: translateY(-4px) rotate(-1deg);
-  }
-}
-
-/* ============================================
-   Responsive Design
-   ============================================ */
-
-@media (min-width: 768px) {
-  .reports-grid {
+  @media (min-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-  }
-  
-  .features-list {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px 32px;
-  }
-  
-  .development-container {
-    padding: 48px 40px;
   }
 }
 
-@media (min-width: 1024px) {
-  .reports-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 576px) {
-  .development-container {
-    padding: 24px 16px;
+.report-card {
+  margin: 0;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   }
   
-  .development-hero {
-    margin-bottom: 40px;
-    
-    .charts-icon {
-      width: 80px;
-      height: 80px;
-      
-      ion-icon {
-        font-size: 40px;
-      }
-    }
-    
-    h1 {
-      font-size: 1.7rem;
-    }
-    
-    .hero-subtitle {
-      font-size: 1rem;
-    }
+  &:active {
+    transform: translateY(-2px);
   }
   
-  .report-card {
+  ion-card-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
     padding: 20px;
   }
   
-  .features-highlight {
-    padding: 24px 20px;
+  .report-icon {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    background: var(--icon-color, var(--ion-color-primary));
+    opacity: 0.15;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    ion-icon {
+      font-size: 32px;
+      color: var(--icon-color, var(--ion-color-primary));
+      opacity: 1;
+    }
   }
   
-  .reports-section h2 {
-    font-size: 1.2rem;
+  .report-info {
+    flex: 1;
+    
+    h3 {
+      margin: 0 0 4px 0;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+    
+    p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--ion-color-medium);
+      line-height: 1.4;
+    }
+  }
+  
+  .report-action {
+    flex-shrink: 0;
+    
+    ion-icon {
+      font-size: 24px;
+      color: var(--ion-color-medium);
+    }
   }
 }
 
-/* ============================================
-   Accessibility
-   ============================================ */
-
-@media (prefers-reduced-motion: reduce) {
-  .report-card {
-    animation: none;
-  }
-  
-  .feature-item {
-    animation: none;
-  }
-  
-  .charts-icon {
-    animation: none;
-  }
-  
-  .report-card:hover {
-    transform: none;
-  }
+/* Info Section */
+.info-section {
+  margin-top: 32px;
 }
 
-/* High contrast mode */
-@media (prefers-contrast: high) {
-  .report-card,
-  .features-highlight {
-    border: 2px solid var(--ion-color-medium);
+.info-card {
+  margin: 0;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  
+  ion-card-header {
+    padding: 16px 16px 8px 16px;
+    
+    ion-card-subtitle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ion-color-primary);
+      font-weight: 600;
+      font-size: 15px;
+      
+      ion-icon {
+        font-size: 20px;
+      }
+    }
   }
   
-  .charts-icon {
-    border: 2px solid var(--ion-color-tertiary-contrast);
+  ion-card-content {
+    padding: 8px 16px 16px 16px;
+    
+    ul {
+      margin: 0;
+      padding-left: 20px;
+      
+      li {
+        color: var(--ion-color-medium);
+        font-size: 14px;
+        line-height: 1.8;
+        margin-bottom: 8px;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
   }
 }
