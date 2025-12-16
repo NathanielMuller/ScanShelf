@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { LoadingController, ToastController, AlertController } from '@ionic/angular';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { AuthService } from '../shared/services/auth.service';
+import { PinService } from '../shared/services/pin.service';
 import { Subscription, Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
@@ -37,9 +38,15 @@ export class LoginPage implements OnInit, OnDestroy {
   shakeState = 'normal';
   private subscription = new Subscription();
 
+  // Estados para el flujo de PIN
+  isPinConfigured = false;
+  isConfiguringPin = false;
+  pinToConfirm = '';
+
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
+    private pinService: PinService,
     private router: Router,
     private loadingController: LoadingController,
     private toastController: ToastController,
@@ -53,6 +60,14 @@ export class LoginPage implements OnInit, OnDestroy {
     if (this.authService.isAuthenticated()) {
       this.router.navigate(['/tabs']);
       return;
+    }
+
+    // Verificar si hay PIN configurado
+    this.isPinConfigured = this.pinService.isPinConfigured();
+    
+    // Si no hay PIN, iniciar configuración
+    if (!this.isPinConfigured) {
+      this.isConfiguringPin = true;
     }
 
     // Manejar mensajes del auth guard
@@ -75,29 +90,20 @@ export class LoginPage implements OnInit, OnDestroy {
 
   private createLoginForm(): FormGroup {
     return this.formBuilder.group({
-      username: [
+      pin: [
         '', 
         [
           Validators.required,
-          Validators.minLength(3),
-          Validators.maxLength(8),
-          Validators.pattern(/^[a-zA-Z0-9]+$/) // Solo alfanuméricos
-        ],
-        [this.validateUsernameSecurityAsync.bind(this)] // Validador asíncrono
-      ],
-      password: [
-        '', 
-        [
-          Validators.required,
-          Validators.pattern(/^\d{4}$/), // Exactamente 4 dígitos
-          this.validatePasswordSecurity.bind(this) // Validador de seguridad
+          Validators.pattern(/^\d{6}$/), // Exactamente 6 dígitos
+          this.validatePinSecurity.bind(this) // Validador de seguridad
         ]
-      ]
+      ],
+      confirmPin: [''] // Solo para configuración inicial
     });
   }
 
   /**
-   * Manejar envío de formulario de login
+   * Manejar envío de formulario de login/configuración
    */
   async onSubmit() {
     if (this.loginForm.invalid) {
@@ -106,12 +112,101 @@ export class LoginPage implements OnInit, OnDestroy {
       return;
     }
 
-    await this.performLogin();
+    if (this.isConfiguringPin) {
+      await this.handlePinConfiguration();
+    } else {
+      await this.handlePinVerification();
+    }
   }
 
   /**
-   * Login como invitado con sesión limitada
+   * Configurar PIN por primera vez
    */
+  private async handlePinConfiguration() {
+    const pin = this.loginForm.get('pin')?.value;
+    const confirmPin = this.loginForm.get('confirmPin')?.value;
+
+    // Si es el primer paso, guardar PIN y pedir confirmación
+    if (!this.pinToConfirm) {
+      this.pinToConfirm = pin;
+      this.loginForm.patchValue({ pin: '', confirmPin: '' });
+      await this.showSuccessToast('Ahora confirma tu PIN');
+      return;
+    }
+
+    // Verificar que los PINs coincidan
+    if (pin !== this.pinToConfirm) {
+      await this.showErrorAlert('Los PINs no coinciden. Intenta de nuevo.');
+      this.pinToConfirm = '';
+      this.loginForm.patchValue({ pin: '', confirmPin: '' });
+      this.triggerShakeAnimation();
+      return;
+    }
+
+    const loading = await this.showLoading('Configurando PIN...');
+    
+    try {
+      const result = this.pinService.configurePin(pin);
+      
+      if (result.success) {
+        await this.showSuccessToast('¡PIN configurado exitosamente!');
+        this.isPinConfigured = true;
+        this.isConfiguringPin = false;
+        this.pinToConfirm = '';
+        this.loginForm.patchValue({ pin: '', confirmPin: '' });
+      } else {
+        await this.showErrorAlert(result.error || 'Error al configurar PIN');
+        this.triggerShakeAnimation();
+      }
+    } catch (error) {
+      await this.showErrorAlert('Error al configurar el PIN');
+      this.triggerShakeAnimation();
+    } finally {
+      loading.dismiss();
+    }
+  }
+
+  /**
+   * Verificar PIN e iniciar sesión
+   */
+  private async handlePinVerification() {
+    const loading = await this.showLoading('Verificando PIN...');
+    
+    try {
+      const pin = this.loginForm.get('pin')?.value;
+      const result = this.pinService.verifyPin(pin);
+      
+      if (result.success) {
+        // Crear sesión con el PIN
+        const username = 'Usuario'; // Nombre por defecto
+        await this.authService.loginWithPin(username);
+        
+        await this.showSuccessToast(`¡Bienvenido!`);
+        
+        // Redirigir a la URL original si existe, sino a tabs
+        const returnUrl = sessionStorage.getItem('returnUrl');
+        if (returnUrl) {
+          sessionStorage.removeItem('returnUrl');
+          this.router.navigateByUrl(returnUrl);
+        } else {
+          this.router.navigate(['/tabs'], { 
+            state: { 
+              usuario: username,
+              guest: false
+            } 
+          });
+        }
+      } else {
+        await this.showErrorAlert(result.error || 'PIN incorrecto');
+        this.triggerShakeAnimation();
+      }
+    } catch (error) {
+      await this.showErrorAlert('Error al verificar el PIN');
+      this.triggerShakeAnimation();
+    } finally {
+      loading.dismiss();
+    }
+  }
 
 
   /**
@@ -131,63 +226,14 @@ export class LoginPage implements OnInit, OnDestroy {
 
     const errors = control.errors;
     
-    if (field === 'username') {
-      if (errors['required']) return 'El usuario es requerido';
-      if (errors['minlength']) return 'Mínimo 3 caracteres';
-      if (errors['maxlength']) return 'Máximo 8 caracteres';
-      if (errors['pattern']) return 'Solo letras y números permitidos';
-      if (errors['unsafeUsername']) return errors['unsafeUsername'].message;
-    }
-    
-    if (field === 'password') {
-      if (errors['required']) return 'La contraseña es requerida';
-      if (errors['pattern']) return 'Debe ser exactamente 4 dígitos';
-      if (errors['weakPassword']) return errors['weakPassword'].message;
+    if (field === 'pin') {
+      if (errors['required']) return 'El PIN es requerido';
+      if (errors['pattern']) return 'Debe ser exactamente 6 dígitos';
+      if (errors['weakPin']) return errors['weakPin'].message;
       if (errors['consecutiveNumbers']) return errors['consecutiveNumbers'].message;
     }
     
     return '';
-  }
-
-  private async performLogin() {
-    const loading = await this.showLoading('Iniciando sesión...');
-    
-    try {
-      const { username, password } = this.loginForm.value;
-      const result = await this.authService.login(username, password);
-      
-      if (result.success) {
-        await this.showSuccessToast(`¡Bienvenido, ${username}!`);
-        
-        // Redirigir a la URL original si existe, sino a tabs
-        const returnUrl = sessionStorage.getItem('returnUrl');
-        if (returnUrl) {
-          sessionStorage.removeItem('returnUrl');
-          this.router.navigateByUrl(returnUrl);
-        } else {
-          this.router.navigate(['/tabs'], { 
-            state: { 
-              usuario: username,
-              guest: false
-            } 
-          });
-        }
-      } else {
-        // Mostrar error específico del sistema de seguridad
-        await this.showErrorAlert(result.error || 'Credenciales inválidas');
-        this.triggerShakeAnimation();
-        
-        // Si el usuario está bloqueado, mostrar información adicional
-        if (result.error?.includes('bloqueado')) {
-          await this.showSecurityAlert();
-        }
-      }
-    } catch (error) {
-      await this.showErrorAlert('Error de conexión. Inténtalo de nuevo.');
-      this.triggerShakeAnimation();
-    } finally {
-      loading.dismiss();
-    }
   }
 
   private async showValidationErrors() {
@@ -249,16 +295,20 @@ export class LoginPage implements OnInit, OnDestroy {
     await alert.present();
   }
 
-  // Validador de seguridad para contraseñas
-  private validatePasswordSecurity(control: AbstractControl): ValidationErrors | null {
+  // Validador de seguridad para PINs
+  private validatePinSecurity(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     
     if (!value) return null;
     
     // Verificar patrones débiles
-    const weakPatterns = ['0000', '1111', '2222', '3333', '4444', '5555', '6666', '7777', '8888', '9999', '1234', '4321'];
+    const weakPatterns = [
+      '000000', '111111', '222222', '333333', '444444', 
+      '555555', '666666', '777777', '888888', '999999',
+      '123456', '654321'
+    ];
     if (weakPatterns.includes(value)) {
-      return { weakPassword: { message: 'Contraseña muy débil, evita patrones comunes' } };
+      return { weakPin: { message: 'PIN muy débil, evita patrones comunes' } };
     }
     
     // Verificar secuencias consecutivas
@@ -269,33 +319,14 @@ export class LoginPage implements OnInit, OnDestroy {
     return null;
   }
 
-  // Validador asíncrono para nombres de usuario
-  private validateUsernameSecurityAsync(control: AbstractControl): Observable<ValidationErrors | null> {
-    const value = control.value;
-    
-    if (!value || value.length < 3) {
-      return of(null);
-    }
-    
-    // Simular verificación de patrones inseguros
-    const unsafePatterns = ['admin', 'test', 'user', 'guest', '123'];
-    const containsUnsafePattern = unsafePatterns.some(pattern => 
-      value.toLowerCase().includes(pattern)
-    );
-    
-    return of(
-      containsUnsafePattern 
-        ? { unsafeUsername: { message: 'El nombre de usuario contiene patrones inseguros' } }
-        : null
-    ).pipe(delay(300)); // Simular latencia de verificación
-  }
-
   // Función auxiliar para detectar números consecutivos
   private hasConsecutiveNumbers(value: string): boolean {
-    for (let i = 0; i < value.length - 1; i++) {
+    for (let i = 0; i < value.length - 2; i++) {
       const current = parseInt(value[i]);
       const next = parseInt(value[i + 1]);
-      if (next === current + 1) {
+      const nextNext = parseInt(value[i + 2]);
+      if ((next === current + 1 && nextNext === next + 1) || 
+          (next === current - 1 && nextNext === next - 1)) {
         return true;
       }
     }
@@ -303,56 +334,36 @@ export class LoginPage implements OnInit, OnDestroy {
   }
 
   /**
-   * Evaluar la seguridad del nombre de usuario en tiempo real
+   * Evaluar la fuerza del PIN
    */
-  getUsernameSecurity(username: string): { level: 'safe' | 'warning' | 'danger', message: string, icon: string } {
-    if (!username || username.length < 3) {
-      return { level: 'danger', message: 'Muy corto', icon: 'alert-circle-outline' };
+  getPinStrength(pin: string): { level: 'weak' | 'fair' | 'good' | 'strong', percentage: number, message: string } {
+    if (!pin) {
+      return { level: 'weak', percentage: 0, message: 'Ingresa un PIN' };
     }
 
-    const unsafePatterns = ['admin', 'test', 'user', 'guest', '123'];
-    const hasUnsafePattern = unsafePatterns.some(pattern => 
-      username.toLowerCase().includes(pattern)
-    );
-
-    if (hasUnsafePattern) {
-      return { level: 'warning', message: 'Contiene patrones comunes', icon: 'warning-outline' };
+    if (pin.length < 6) {
+      return { level: 'weak', percentage: 25, message: 'Muy corto' };
     }
 
-    if (username.length >= 6) {
-      return { level: 'safe', message: 'Nombre seguro', icon: 'shield-checkmark-outline' };
-    }
-
-    return { level: 'warning', message: 'Podría ser más seguro', icon: 'shield-outline' };
-  }
-
-  /**
-   * Evaluar la fuerza de la contraseña
-   */
-  getPasswordStrength(password: string): { level: 'weak' | 'fair' | 'good' | 'strong', percentage: number, message: string } {
-    if (!password) {
-      return { level: 'weak', percentage: 0, message: 'Ingresa una contraseña' };
-    }
-
-    if (password.length < 4) {
-      return { level: 'weak', percentage: 25, message: 'Muy débil' };
-    }
-
-    const weakPatterns = ['0000', '1111', '2222', '3333', '4444', '5555', '6666', '7777', '8888', '9999', '1234', '4321'];
-    if (weakPatterns.includes(password)) {
+    const weakPatterns = [
+      '000000', '111111', '222222', '333333', '444444', 
+      '555555', '666666', '777777', '888888', '999999',
+      '123456', '654321'
+    ];
+    if (weakPatterns.includes(pin)) {
       return { level: 'weak', percentage: 25, message: 'Patrón muy común' };
     }
 
-    if (this.hasConsecutiveNumbers(password)) {
+    if (this.hasConsecutiveNumbers(pin)) {
       return { level: 'fair', percentage: 50, message: 'Evita secuencias' };
     }
 
-    // Para contraseñas de 4 dígitos, evaluar variedad
-    const uniqueDigits = new Set(password).size;
-    if (uniqueDigits >= 4) {
-      return { level: 'strong', percentage: 100, message: 'Contraseña fuerte' };
-    } else if (uniqueDigits >= 3) {
-      return { level: 'good', percentage: 75, message: 'Buena contraseña' };
+    // Para PINs de 6 dígitos, evaluar variedad
+    const uniqueDigits = new Set(pin).size;
+    if (uniqueDigits >= 5) {
+      return { level: 'strong', percentage: 100, message: 'PIN fuerte' };
+    } else if (uniqueDigits >= 4) {
+      return { level: 'good', percentage: 75, message: 'Buen PIN' };
     } else {
       return { level: 'fair', percentage: 50, message: 'Usa más variedad' };
     }

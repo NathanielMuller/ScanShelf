@@ -122,6 +122,32 @@ export class AuthService {
     });
   }
 
+  /**
+   * Login con PIN (nueva funcionalidad)
+   * @param username - Usuario (opcional, por defecto "Usuario")
+   * @returns Promise<{success: boolean, error?: string}>
+   */
+  async loginWithPin(username: string = 'Usuario'): Promise<{success: boolean, error?: string}> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Generar sesión segura
+        const sessionId = this.generateSecureSessionId();
+        const user: User = {
+          usuario: username,
+          guest: false,
+          timestamp: Date.now(),
+          sessionId: sessionId,
+          lastActivity: Date.now()
+        };
+        
+        this.setCurrentUser(user);
+        this.startSessionTimer();
+        
+        resolve({ success: true });
+      }, 300);
+    });
+  }
+
 
 
   /**

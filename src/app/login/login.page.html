@@ -16,55 +16,50 @@
       [@shakeAnimation]="shakeState"
     >
       <ion-card-header>
-        <ion-card-title class="card-title">Iniciar Sesión</ion-card-title>
-        <ion-card-subtitle class="card-subtitle">Ingresa tus credenciales para continuar</ion-card-subtitle>
+        <ion-card-title class="card-title">
+          {{ isConfiguringPin ? 'Configura tu PIN' : 'Iniciar Sesión' }}
+        </ion-card-title>
+        <ion-card-subtitle class="card-subtitle">
+          {{ isConfiguringPin ? (pinToConfirm ? 'Confirma tu PIN de 6 dígitos' : 'Crea un PIN de 6 dígitos') : 'Ingresa tu PIN para continuar' }}
+        </ion-card-subtitle>
       </ion-card-header>
 
       <ion-card-content>
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-          <!-- Campo Usuario -->
+          <!-- Campo PIN -->
           <div class="input-group">
             <ion-item 
               lines="none" 
               class="input-item"
-              [class.error]="hasError('username', 'required') || hasError('username', 'pattern') || hasError('username', 'minlength') || hasError('username', 'maxlength')"
+              [class.error]="hasError('pin', 'required') || hasError('pin', 'pattern')"
             >
-              <ion-label position="stacked">Usuario</ion-label>
-              <ion-input 
-                type="text" 
-                formControlName="username"
-                placeholder="Ej: juan123"
-                maxlength="8"
-                autocomplete="username"
-                [clearInput]="true"
-                aria-label="Nombre de usuario"
-              ></ion-input>
-            </ion-item>
-            <div class="error-message" *ngIf="(loginForm.get('username')?.dirty || loginForm.get('username')?.touched) && loginForm.get('username')?.invalid">
-              {{ getErrorMessage('username') }}
-            </div>
-          </div>
-
-          <!-- Campo Contraseña -->
-          <div class="input-group">
-            <ion-item 
-              lines="none" 
-              class="input-item"
-              [class.error]="hasError('password', 'required') || hasError('password', 'pattern')"
-            >
-              <ion-label position="stacked">Contraseña</ion-label>
+              <ion-label position="stacked">PIN</ion-label>
               <ion-input 
                 type="password" 
-                formControlName="password"
-                placeholder="4 dígitos"
-                maxlength="4"
+                formControlName="pin"
+                placeholder="6 dígitos"
+                maxlength="6"
                 inputmode="numeric"
-                autocomplete="current-password"
-                aria-label="Contraseña de 4 dígitos"
+                autocomplete="off"
+                aria-label="PIN de 6 dígitos"
               ></ion-input>
             </ion-item>
-            <div class="error-message" *ngIf="(loginForm.get('password')?.dirty || loginForm.get('password')?.touched) && loginForm.get('password')?.invalid">
-              {{ getErrorMessage('password') }}
+            <div class="error-message" *ngIf="(loginForm.get('pin')?.dirty || loginForm.get('pin')?.touched) && loginForm.get('pin')?.invalid">
+              {{ getErrorMessage('pin') }}
+            </div>
+            
+            <!-- Indicador de fuerza del PIN (solo durante configuración) -->
+            <div *ngIf="isConfiguringPin && loginForm.get('pin')?.value" class="pin-strength">
+              <div class="strength-bar">
+                <div class="strength-fill" 
+                     [style.width.%]="getPinStrength(loginForm.get('pin')?.value).percentage"
+                     [class.weak]="getPinStrength(loginForm.get('pin')?.value).level === 'weak'"
+                     [class.fair]="getPinStrength(loginForm.get('pin')?.value).level === 'fair'"
+                     [class.good]="getPinStrength(loginForm.get('pin')?.value).level === 'good'"
+                     [class.strong]="getPinStrength(loginForm.get('pin')?.value).level === 'strong'">
+                </div>
+              </div>
+              <p class="strength-text">{{ getPinStrength(loginForm.get('pin')?.value).message }}</p>
             </div>
           </div>
 
@@ -75,11 +70,11 @@
               expand="block" 
               class="btn-primary login-btn"
               [disabled]="isLoading"
-              aria-label="Iniciar sesión con credenciales"
+              aria-label="Continuar"
             >
-              <ion-icon name="log-in-outline" slot="start" *ngIf="!isLoading"></ion-icon>
+              <ion-icon [name]="isConfiguringPin ? 'save-outline' : 'log-in-outline'" slot="start" *ngIf="!isLoading"></ion-icon>
               <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
-              {{ isLoading ? 'Iniciando...' : 'Ingresar' }}
+              {{ isLoading ? 'Procesando...' : (isConfiguringPin ? (pinToConfirm ? 'Confirmar PIN' : 'Continuar') : 'Desbloquear') }}
             </ion-button>
           </div>
         </form>
@@ -90,7 +85,8 @@
     <div class="info-section">
       <p class="demo-info">
         <ion-icon name="information-circle-outline"></ion-icon>
-        <strong>Demo:</strong> Usuario: 3-8 caracteres alfanuméricos | Contraseña: 4 dígitos
+        <strong>{{ isConfiguringPin ? 'Configuración inicial:' : 'Seguridad:' }}</strong> 
+        {{ isConfiguringPin ? 'Crea un PIN de 6 dígitos para proteger tu cuenta' : 'Usa tu PIN de 6 dígitos para acceder' }}
       </p>
     </div>
   </div>
