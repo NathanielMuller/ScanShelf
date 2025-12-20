@@ -118,6 +118,12 @@ ion-content {
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
   
   ion-item {
     --padding-start: 20px;
@@ -125,6 +131,7 @@ ion-content {
     --inner-padding-end: 0;
     --background: transparent;
     --min-height: 64px;
+    transition: background 0.2s ease;
     
     ion-icon[slot="start"] {
       margin-inline-end: 16px;

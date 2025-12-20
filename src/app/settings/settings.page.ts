@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { AuthService, User } from '../shared/services/auth.service';
+import { PinService } from '../shared/services/pin.service';
 import { trigger, style, transition, animate } from '@angular/animations';
 
 export interface AppSettings {
@@ -62,6 +63,7 @@ export class SettingsPage implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private pinService: PinService,
     private router: Router,
     private alertController: AlertController,
     private toastController: ToastController
@@ -289,6 +291,165 @@ export class SettingsPage implements OnInit {
       color: 'tertiary'
     });
     await toast.present();
+  }
+
+  /**
+   * Cambiar nombre de usuario
+   */
+  async changeUsername() {
+    if (this.isGuest) {
+      await this.showGuestRestrictionAlert();
+      return;
+    }
+
+    const currentUsername = this.pinService.getUsername();
+
+    const alert = await this.alertController.create({
+      header: 'Cambiar Nombre de Usuario',
+      message: 'Ingresa tu nuevo nombre de usuario',
+      inputs: [
+        {
+          name: 'username',
+          type: 'text',
+          placeholder: 'Nuevo nombre',
+          value: currentUsername,
+          attributes: {
+            maxlength: 20,
+            minlength: 3
+          }
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+        {
+          text: 'Cambiar',
+          handler: async (data) => {
+            const newUsername = data.username?.trim();
+            if (!newUsername || newUsername.length < 3) {
+              this.showErrorToast('El nombre debe tener al menos 3 caracteres');
+              return false;
+            }
+            if (newUsername.length > 20) {
+              this.showErrorToast('El nombre no puede superar 20 caracteres');
+              return false;
+            }
+
+            const result = this.pinService.updateUsername(newUsername);
+            if (result.success) {
+              // Actualizar la sesión del usuario
+              await this.authService.loginWithPin(newUsername);
+              this.loadUserData();
+              this.showSuccessToast('Nombre de usuario actualizado');
+            } else {
+              this.showErrorToast(result.error || 'Error al actualizar el nombre');
+            }
+            return true;
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  /**
+   * Cambiar PIN
+   */
+  async changePin() {
+    if (this.isGuest) {
+      await this.showGuestRestrictionAlert();
+      return;
+    }
+
+    const alert = await this.alertController.create({
+      header: 'Cambiar PIN',
+      message: 'Ingresa tu PIN actual y el nuevo PIN',
+      inputs: [
+        {
+          name: 'currentPin',
+          type: 'password',
+          placeholder: 'PIN actual (6 dígitos)',
+          attributes: {
+            maxlength: 6,
+            inputmode: 'numeric'
+          }
+        },
+        {
+          name: 'newPin',
+          type: 'password',
+          placeholder: 'Nuevo PIN (6 dígitos)',
+          attributes: {
+            maxlength: 6,
+            inputmode: 'numeric'
+          }
+        },
+        {
+          name: 'confirmPin',
+          type: 'password',
+          placeholder: 'Confirmar nuevo PIN',
+          attributes: {
+            maxlength: 6,
+            inputmode: 'numeric'
+          }
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+        {
+          text: 'Cambiar',
+          handler: async (data) => {
+            // Validar que todos los campos estén llenos
+            if (!data.currentPin || !data.newPin || !data.confirmPin) {
+              this.showErrorToast('Completa todos los campos');
+              return false;
+            }
+
+            // Validar formato de PINs
+            const pinPattern = /^\d{6}$/;
+            if (!pinPattern.test(data.currentPin) || !pinPattern.test(data.newPin)) {
+              this.showErrorToast('Los PINs deben tener exactamente 6 dígitos');
+              return false;
+            }
+
+            // Validar que el nuevo PIN y la confirmación coincidan
+            if (data.newPin !== data.confirmPin) {
+              this.showErrorToast('Los PINs nuevos no coinciden');
+              return false;
+            }
+
+            // Intentar cambiar el PIN
+            const result = this.pinService.changePin(data.currentPin, data.newPin);
+            if (result.success) {
+              this.showSuccessToast('PIN actualizado correctamente');
+            } else {
+              this.showErrorToast(result.error || 'Error al cambiar el PIN');
+            }
+            
+            return result.success;
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  /**
+   * Mostrar alerta de restricción para invitados
+   */
+  private async showGuestRestrictionAlert() {
+    const alert = await this.alertController.create({
+      header: 'Función no disponible',
+      message: 'Los usuarios invitados no pueden acceder a esta función. Inicia sesión con una cuenta para continuar.',
+      buttons: ['Entendido']
+    });
+    await alert.present();
   }
 
   /**

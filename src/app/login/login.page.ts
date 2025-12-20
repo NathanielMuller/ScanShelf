@@ -90,6 +90,13 @@ export class LoginPage implements OnInit, OnDestroy {
 
   private createLoginForm(): FormGroup {
     return this.formBuilder.group({
+      username: [
+        '',
+        [
+          Validators.minLength(3),
+          Validators.maxLength(20)
+        ]
+      ],
       pin: [
         '', 
         [
@@ -124,6 +131,7 @@ export class LoginPage implements OnInit, OnDestroy {
    */
   private async handlePinConfiguration() {
     const pin = this.loginForm.get('pin')?.value;
+    const username = this.loginForm.get('username')?.value?.trim() || 'Usuario';
     const confirmPin = this.loginForm.get('confirmPin')?.value;
 
     // Si es el primer paso, guardar PIN y pedir confirmación
@@ -146,7 +154,7 @@ export class LoginPage implements OnInit, OnDestroy {
     const loading = await this.showLoading('Configurando PIN...');
     
     try {
-      const result = this.pinService.configurePin(pin);
+      const result = this.pinService.configurePin(pin, username);
       
       if (result.success) {
         await this.showSuccessToast('¡PIN configurado exitosamente!');
@@ -162,7 +170,7 @@ export class LoginPage implements OnInit, OnDestroy {
       await this.showErrorAlert('Error al configurar el PIN');
       this.triggerShakeAnimation();
     } finally {
-      loading.dismiss();
+      await loading.dismiss();
     }
   }
 
@@ -177,11 +185,13 @@ export class LoginPage implements OnInit, OnDestroy {
       const result = this.pinService.verifyPin(pin);
       
       if (result.success) {
+        // Obtener el nombre de usuario guardado
+        const username = this.pinService.getUsername();
+        
         // Crear sesión con el PIN
-        const username = 'Usuario'; // Nombre por defecto
         await this.authService.loginWithPin(username);
         
-        await this.showSuccessToast(`¡Bienvenido!`);
+        await this.showSuccessToast(`¡Bienvenido ${username}!`);
         
         // Redirigir a la URL original si existe, sino a tabs
         const returnUrl = sessionStorage.getItem('returnUrl');
@@ -204,7 +214,7 @@ export class LoginPage implements OnInit, OnDestroy {
       await this.showErrorAlert('Error al verificar el PIN');
       this.triggerShakeAnimation();
     } finally {
-      loading.dismiss();
+      await loading.dismiss();
     }
   }
 
@@ -225,6 +235,11 @@ export class LoginPage implements OnInit, OnDestroy {
     if (!control || !control.errors) return '';
 
     const errors = control.errors;
+    
+    if (field === 'username') {
+      if (errors['minlength']) return 'Mínimo 3 caracteres';
+      if (errors['maxlength']) return 'Máximo 20 caracteres';
+    }
     
     if (field === 'pin') {
       if (errors['required']) return 'El PIN es requerido';

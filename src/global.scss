@@ -108,6 +108,12 @@
   box-shadow: var(--shadow-card);
   background: var(--color-surface);
   border: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(2, 6, 23, 0.12);
+  }
 }
 
 .btn-primary {
@@ -117,6 +123,11 @@
   --border-radius: var(--border-radius-md);
   font-weight: var(--font-weight-medium);
   min-height: 44px;
+  transition: all 0.3s ease;
+  
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .btn-secondary {
@@ -127,6 +138,11 @@
   --border-radius: var(--border-radius-md);
   font-weight: var(--font-weight-medium);
   min-height: 44px;
+  transition: all 0.3s ease;
+  
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .text-muted {
@@ -323,5 +339,134 @@ body.scanner-active {
     * {
       visibility: visible !important;
     }
+  }
+}
+
+/**
+ * Loading Spinner Improvements
+ * -----------------------------------------------------
+ */
+ion-loading {
+  --background: rgba(255, 255, 255, 0.95);
+  --spinner-color: var(--color-primary);
+  --backdrop-opacity: 0.4;
+  
+  .loading-wrapper {
+    border-radius: var(--border-radius-md);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    padding: 24px;
+    min-width: 200px;
+  }
+  
+  .loading-content {
+    color: var(--color-text-dark);
+    font-weight: var(--font-weight-medium);
+    margin-top: 12px;
+  }
+}
+
+/**
+ * Toast Improvements
+ * -----------------------------------------------------
+ */
+ion-toast {
+  --border-radius: var(--border-radius-md);
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  
+  &.toast-success {
+    --background: #10B981;
+    --color: white;
+  }
+  
+  &.toast-error {
+    --background: #EF4444;
+    --color: white;
+  }
+  
+  &.toast-warning {
+    --background: #F59E0B;
+    --color: white;
+  }
+}
+
+/**
+ * Alert Improvements
+ * -----------------------------------------------------
+ */
+ion-alert {
+  --background: var(--color-surface);
+  --max-width: 340px;
+  
+  .alert-wrapper {
+    border-radius: var(--border-radius-md);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  }
+  
+  .alert-head {
+    padding: 20px 20px 12px;
+  }
+  
+  .alert-title {
+    color: var(--color-text-dark);
+    font-weight: var(--font-weight-semibold);
+  }
+  
+  .alert-message {
+    color: var(--color-muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .alert-button {
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
+    
+    &.alert-button-role-destructive {
+      color: var(--ion-color-danger);
+    }
+    
+    &.alert-button-role-cancel {
+      color: var(--color-muted);
+    }
+  }
+}
+
+/**
+ * Smooth Page Transitions
+ * -----------------------------------------------------
+ */
+.ion-page {
+  opacity: 0;
+  animation: pageEnter 0.3s ease forwards;
+}
+
+@keyframes pageEnter {
+  to {
+    opacity: 1;
+  }
+}
+
+/**
+ * Loading States
+ * -----------------------------------------------------
+ */
+.skeleton-loading {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+  border-radius: var(--border-radius-sm);
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
   }
 }

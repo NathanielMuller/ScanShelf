@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface PinConfig {
   pin: string;
+  username: string;
   createdAt: number;
   lastUsed?: number;
 }
@@ -39,16 +40,25 @@ export class PinService {
   }
 
   /**
-   * Configurar un nuevo PIN
+   * Configurar un nuevo PIN con nombre de usuario
    * @param pin - PIN de 6 dígitos
+   * @param username - Nombre de usuario (opcional, por defecto "Usuario")
    * @returns {success: boolean, error?: string}
    */
-  configurePin(pin: string): { success: boolean; error?: string } {
+  configurePin(pin: string, username: string = 'Usuario'): { success: boolean; error?: string } {
     // Validar formato del PIN (6 dígitos)
     if (!this.validatePinFormat(pin)) {
       return {
         success: false,
         error: 'El PIN debe tener exactamente 6 dígitos'
+      };
+    }
+
+    // Validar nombre de usuario
+    if (!this.validateUsername(username)) {
+      return {
+        success: false,
+        error: 'El nombre debe tener entre 3 y 20 caracteres'
       };
     }
 
@@ -67,6 +77,7 @@ export class PinService {
       
       const config: PinConfig = {
         pin: hashedPin,
+        username: username.trim(),
         createdAt: Date.now()
       };
 
@@ -151,8 +162,9 @@ export class PinService {
    * Cambiar el PIN existente
    * @param oldPin - PIN actual
    * @param newPin - Nuevo PIN
+   * @param newUsername - Nuevo nombre de usuario (opcional)
    */
-  changePin(oldPin: string, newPin: string): { success: boolean; error?: string } {
+  changePin(oldPin: string, newPin: string, newUsername?: string): { success: boolean; error?: string } {
     // Verificar PIN actual
     const verifyResult = this.verifyPin(oldPin);
     if (!verifyResult.success) {
@@ -172,8 +184,14 @@ export class PinService {
       };
     }
 
+    // Si no se proporciona nuevo username, mantener el actual
+    if (!newUsername) {
+      const currentConfig = this.getPinConfig();
+      newUsername = currentConfig?.username || 'Usuario';
+    }
+
     // Configurar nuevo PIN
-    return this.configurePin(newPin);
+    return this.configurePin(newPin, newUsername);
   }
 
   /**
@@ -197,7 +215,7 @@ export class PinService {
   /**
    * Obtener información del PIN (sin revelar el PIN)
    */
-  getPinInfo(): { configured: boolean; createdAt?: number; lastUsed?: number } | null {
+  getPinInfo(): { configured: boolean; username?: string; createdAt?: number; lastUsed?: number } | null {
     try {
       const configStr = localStorage.getItem(this.PIN_STORAGE_KEY);
       if (!configStr) {
@@ -207,6 +225,7 @@ export class PinService {
       const config: PinConfig = JSON.parse(configStr);
       return {
         configured: true,
+        username: config.username,
         createdAt: config.createdAt,
         lastUsed: config.lastUsed
       };
@@ -216,12 +235,76 @@ export class PinService {
     }
   }
 
+  /**
+   * Obtener configuración completa del PIN (privado)
+   */
+  private getPinConfig(): PinConfig | null {
+    try {
+      const configStr = localStorage.getItem(this.PIN_STORAGE_KEY);
+      if (!configStr) {
+        return null;
+      }
+      return JSON.parse(configStr);
+    } catch (error) {
+      console.error('Error getting PIN config:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Obtener nombre de usuario configurado
+   */
+  getUsername(): string {
+    const info = this.getPinInfo();
+    return info?.username || 'Usuario';
+  }
+
+  /**
+   * Actualizar solo el nombre de usuario
+   */
+  updateUsername(newUsername: string): { success: boolean; error?: string } {
+    if (!this.validateUsername(newUsername)) {
+      return {
+        success: false,
+        error: 'El nombre debe tener entre 3 y 20 caracteres'
+      };
+    }
+
+    try {
+      const config = this.getPinConfig();
+      if (!config) {
+        return {
+          success: false,
+          error: 'No hay configuración de PIN'
+        };
+      }
+
+      config.username = newUsername.trim();
+      localStorage.setItem(this.PIN_STORAGE_KEY, JSON.stringify(config));
+      return { success: true };
+    } catch (error) {
+      console.error('Error updating username:', error);
+      return {
+        success: false,
+        error: 'Error al actualizar el nombre'
+      };
+    }
+  }
+
   // ========== MÉTODOS PRIVADOS ==========
 
   private validatePinFormat(pin: string): boolean {
     // Exactamente 6 dígitos
     const pinPattern = /^\d{6}$/;
     return pinPattern.test(pin);
+  }
+
+  private validateUsername(username: string): boolean {
+    // Entre 3 y 20 caracteres, permitir letras, números y espacios
+    if (!username || username.trim().length < 3 || username.trim().length > 20) {
+      return false;
+    }
+    return true;
   }
 
   private validatePinSecurity(pin: string): { valid: boolean; error?: string } {

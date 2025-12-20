@@ -17,15 +17,41 @@
     >
       <ion-card-header>
         <ion-card-title class="card-title">
-          {{ isConfiguringPin ? 'Configura tu PIN' : 'Iniciar Sesión' }}
+          {{ isConfiguringPin ? 'Configura tu Cuenta' : 'Iniciar Sesión' }}
         </ion-card-title>
         <ion-card-subtitle class="card-subtitle">
-          {{ isConfiguringPin ? (pinToConfirm ? 'Confirma tu PIN de 6 dígitos' : 'Crea un PIN de 6 dígitos') : 'Ingresa tu PIN para continuar' }}
+          {{ isConfiguringPin ? (pinToConfirm ? 'Confirma tu PIN de 6 dígitos' : 'Personaliza tu perfil y crea un PIN') : 'Ingresa tu PIN para continuar' }}
         </ion-card-subtitle>
       </ion-card-header>
 
       <ion-card-content>
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <!-- Campo Nombre de Usuario (solo durante configuración) -->
+          <div class="input-group" *ngIf="isConfiguringPin && !pinToConfirm">
+            <ion-item 
+              lines="none" 
+              class="input-item"
+              [class.error]="hasError('username', 'minlength') || hasError('username', 'maxlength')"
+            >
+              <ion-label position="stacked">Nombre de Usuario</ion-label>
+              <ion-input 
+                type="text" 
+                formControlName="username"
+                placeholder="¿Cómo te llamas?"
+                maxlength="20"
+                autocomplete="off"
+                aria-label="Nombre de usuario"
+              ></ion-input>
+            </ion-item>
+            <div class="error-message" *ngIf="(loginForm.get('username')?.dirty || loginForm.get('username')?.touched) && loginForm.get('username')?.invalid">
+              {{ getErrorMessage('username') }}
+            </div>
+            <p class="hint-text">
+              <ion-icon name="information-circle-outline"></ion-icon>
+              Opcional. Si lo dejas vacío, usaremos "Usuario"
+            </p>
+          </div>
+
           <!-- Campo PIN -->
           <div class="input-group">
             <ion-item 
